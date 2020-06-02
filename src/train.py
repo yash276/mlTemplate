@@ -5,6 +5,8 @@ import os
 
 from sklearn import metrics
 from . import dispatcher
+import joblib
+
 TRAINING_DATA = os.environ.get("TRAINING_DATA")
 FOLD = int(os.environ.get("FOLD"))
 MODEL = os.environ.get("MODEL")
@@ -46,3 +48,6 @@ if __name__ == "__main__":
     preds = classifier.predict_proba(validDF)[:,1]
     # Roc_auc_score because data is skewed
     print(metrics.roc_auc_score(yvalid,preds))
+
+    joblib.dump(labelEncoders,f"model/{MODEL}LabelEncoder.pkl")
+    joblib.dump(classifier,f"model/{MODEL}Classifier.pkl")

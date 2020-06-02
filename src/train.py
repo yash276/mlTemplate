@@ -3,8 +3,11 @@ from sklearn import ensemble
 import pandas as pd
 import os 
 
+from sklearn import metrics
+from . import dispatcher
 TRAINING_DATA = os.environ.get("TRAINING_DATA")
 FOLD = int(os.environ.get("FOLD"))
+MODEL = os.environ.get("MODEL")
 
 FOLD_MAPPING ={
     0: [1, 2, 3, 4],
@@ -38,7 +41,8 @@ if __name__ == "__main__":
         labelEncoders.append((column,lbl))
     
     # data ready to train
-    classifier = ensemble.RandomForestClassifier(n_jobs=-1,verbose=2)
+    classifier = dispatcher.models[MODEL]
     classifier.fit(trainDF,ytrain)
     preds = classifier.predict_proba(validDF)[:,1]
-    print(preds)
+    # Roc_auc_score because data is skewed
+    print(metrics.roc_auc_score(yvalid,preds))

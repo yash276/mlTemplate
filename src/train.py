@@ -22,32 +22,32 @@ FOLD_MAPPING ={
 if __name__ == "__main__":
     
     df = pd.read_csv(TRAINING_DATA)
-    trainDF = df[df.kfold.isin(FOLD_MAPPING.get(FOLD))]
-    validDF = df[df.kfold==FOLD]
+    train_df = df[df.kfold.isin(FOLD_MAPPING.get(FOLD))]
+    valid_df = df[df.kfold==FOLD]
 
-    ytrain = trainDF.target.values
-    yvalid = validDF.target.values
+    ytrain = train_df.target.values
+    yvalid = valid_df.target.values
 
-    trainDF = trainDF.drop(["id","target","kfold"],axis=1)
-    validDF = validDF.drop(["id","target","kfold"],axis=1)
+    train_df = train_df.drop(["id","target","kfold"],axis=1)
+    valid_df = valid_df.drop(["id","target","kfold"],axis=1)
     
-    validDF = validDF[trainDF.columns]
+    valid_df = valid_df[train_df.columns]
 
-    labelEncoders = []
+    label_encoders = []
 
-    for column in trainDF.columns:
+    for column in train_df.columns:
         lbl = preprocessing.LabelEncoder()
-        lbl.fit(trainDF[column].values.tolist() + validDF[column].values.tolist())
-        trainDF.loc[:,column] = lbl.transform(trainDF[column].values.tolist())
-        validDF.loc[:,column] = lbl.transform(validDF[column].values.tolist())
-        labelEncoders.append((column,lbl))
+        lbl.fit(train_df[column].values.tolist() + valid_df[column].values.tolist())
+        train_df.loc[:,column] = lbl.transform(train_df[column].values.tolist())
+        valid_df.loc[:,column] = lbl.transform(valid_df[column].values.tolist())
+        label_encoders.append((column,lbl))
     
     # data ready to train
     classifier = dispatcher.models[MODEL]
-    classifier.fit(trainDF,ytrain)
-    preds = classifier.predict_proba(validDF)[:,1]
+    classifier.fit(train_df,ytrain)
+    preds = classifier.predict_proba(valid_df)[:,1]
     # Roc_auc_score because data is skewed
     print(metrics.roc_auc_score(yvalid,preds))
 
-    joblib.dump(labelEncoders,f"model/{MODEL}LabelEncoder.pkl")
+    joblib.dump(label_encoders,f"model/{MODEL}LabelEncoder.pkl")
     joblib.dump(classifier,f"model/{MODEL}Classifier.pkl")

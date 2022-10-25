@@ -8,6 +8,7 @@ from . import dispatcher
 import joblib
 
 TRAINING_DATA = os.environ.get("TRAINING_DATA")
+TEST_DATA = os.environ.get("TEST_DATA")
 FOLD = int(os.environ.get("FOLD"))
 MODEL = os.environ.get("MODEL")
 
@@ -22,6 +23,7 @@ FOLD_MAPPING ={
 if __name__ == "__main__":
     
     df = pd.read_csv(TRAINING_DATA)
+    test_df = pd.read_csv(TEST_DATA)
     train_df = df[df.kfold.isin(FOLD_MAPPING.get(FOLD))]
     valid_df = df[df.kfold==FOLD]
 
@@ -33,14 +35,14 @@ if __name__ == "__main__":
     
     valid_df = valid_df[train_df.columns]
 
-    label_encoders = []
+    label_encoders = {}
 
     for column in train_df.columns:
         lbl = preprocessing.LabelEncoder()
-        lbl.fit(train_df[column].values.tolist() + valid_df[column].values.tolist())
+        lbl.fit(train_df[column].values.tolist() + valid_df[column].values.tolist() + test_df[column].values.tolist())
         train_df.loc[:,column] = lbl.transform(train_df[column].values.tolist())
         valid_df.loc[:,column] = lbl.transform(valid_df[column].values.tolist())
-        label_encoders.append((column,lbl))
+        label_encoders[column] = lbl
     
     # data ready to train
     classifier = dispatcher.models[MODEL]
@@ -49,5 +51,6 @@ if __name__ == "__main__":
     # Roc_auc_score because data is skewed
     print(metrics.roc_auc_score(yvalid,preds))
 
-    joblib.dump(label_encoders,f"model/{MODEL}LabelEncoder.pkl")
-    joblib.dump(classifier,f"model/{MODEL}Classifier.pkl")
+    joblib.dump(label_encoders,f"model/{MODEL}_{FOLD}_label_encoder.pkl")
+    joblib.dump(classifier,f"model/{MODEL}_{FOLD}.pkl")
+    joblib.dump(train_df.columns,f"model/{MODEL}_{FOLD}_columns.pkl")

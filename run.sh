@@ -4,9 +4,10 @@ export TEST_DATA=input/test.csv
 
 export MODEL=$1
 
+python3 -m src.create_folds
 # FOLD=0 python3 -m src.train
 # FOLD=1 python3 -m src.train
 # FOLD=2 python3 -m src.train
 # FOLD=3 python3 -m src.train
 # FOLD=4 python3 -m src.train
-python3 -m src.predict
+#python3 -m src.predict

@@ -4,7 +4,7 @@ export TEST_DATA=input/test.csv
 
 export MODEL=$1
 
-python3 -m src.create_folds
+python3 -m src.categorical_features
 # FOLD=0 python3 -m src.train
 # FOLD=1 python3 -m src.train
 # FOLD=2 python3 -m src.train

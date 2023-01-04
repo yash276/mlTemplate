@@ -4,7 +4,7 @@ class CrossValidation:
     """
     binary classification
     multi class classification
-    multi lable classification
+    multi label classification
     single column regression
     multi column regression
     holdout
@@ -64,7 +64,6 @@ class CrossValidation:
                 # single target value so no point in creating the model
                 raise Exception("Only one unique value found for Target")
             elif unique_values > 1:
-                # Binary classification problem
                 # use stratified k-fold
                 
                 kf =  model_selection.StratifiedKFold(n_splits=self.num_folds,

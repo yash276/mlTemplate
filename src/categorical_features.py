@@ -8,6 +8,14 @@ class CategoricalFeatures:
         enc_type,
         handle_na=False
         ):
+        """_summary_
+
+        Args:
+            dataframe (_type_): _description_
+            categorical_features (_type_): _description_
+            enc_type (_type_): _description_
+            handle_na (bool, optional): _description_. Defaults to False.
+        """
         # the dataframe should not have NA values
         self.dataframe = dataframe
         

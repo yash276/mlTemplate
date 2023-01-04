@@ -1,0 +1,15 @@
+input: {
+        path: "input/train.csv"
+        }
+cross_validation: {
+                target_cols: ["attribute_ids"],
+                problem_type: "multilabel_classification",
+                multilabel_delimiter: " ",
+                shuffle: True
+                  }
+catergorical_features: {
+
+                        }
+numerical_features: {
+
+                    }

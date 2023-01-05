@@ -4,7 +4,7 @@ import pandas as pd
 from pandas_profiling import ProfileReport
 from yaml.loader import SafeLoader
 
-def eda(cfg : dict) -> None :    
+def eda(input_cfg: dict) -> None :    
     """
     The function generates an automated EDA report and save it in a HTML format.
     The generated report can be shared across and is platform independent.
@@ -15,7 +15,7 @@ def eda(cfg : dict) -> None :
                             'path': "input/train.csv" 
                         }    
     """
-    df = pd.read_csv(cfg['path'])
+    df = pd.read_csv(input_cfg['train_file'])
     profile = ProfileReport(df,title="Framingham Kaggle Data EDA Report")
     profile.to_file("EDA_PandasProfling_3.html")
 

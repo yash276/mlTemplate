@@ -1,5 +1,5 @@
 from sklearn import model_selection
-
+import pandas as pd
 class CrossValidation:
     """
     binary classification
@@ -9,34 +9,19 @@ class CrossValidation:
     multi column regression
     holdout
     """
-    def __init__(self, 
-                 df, 
-                 target_cols,
-                 shuffle, 
-                 problem_type="binary_classification",
-                 multilabel_delimiter=",",
-                 num_folds=5,
-                 random_state=42
-                 ):
-        """_summary_
-
-        Args:
-            df (_type_): _description_
-            target_cols (_type_): _description_
-            shuffle (_type_): For Time Series shuffle needs to be False. 
-                            For other Problems it needs to be True
-            problem_type (str, optional): _description_. Defaults to "binary_classification".
-            num_folds (int, optional): _description_. Defaults to 5.
-            random_state (int, optional): _description_. Defaults to 42.
-        """
-        self.dataframe = df
-        self.target_cols = target_cols
+    def __init__(self,
+                 input_cfg: dict, 
+                 cv_cfg: dict
+                 ) -> pd.DataFrame:
+        
+        self.dataframe = pd.read_csv(input_cfg['train_file'])
+        self.target_cols = cv_cfg['target_cols']
         self.num_targets = len(self.target_cols)
-        self.problem_type = problem_type
-        self.multilabel_delimiter = multilabel_delimiter
-        self.num_folds = num_folds
-        self.shuffle = shuffle
-        self.random_state = random_state
+        self.problem_type = cv_cfg['problem_type']
+        self.multilabel_delimiter = cv_cfg['multilabel_delimiter']
+        self.num_folds = cv_cfg['num_folds']
+        self.shuffle = cv_cfg['shuffle']
+        self.random_state = cv_cfg['random_state']
         
         if self.shuffle is True:
             self.dataframe = self.dataframe.sample(frac=1).reset_index(drop=True)

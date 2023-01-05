@@ -1,12 +1,17 @@
 input: {
-        path: "input/train.csv"
+        train_file: "input/train.csv",
+        test_file: "",
+        validation_file: "",
+        output_path: ""
         }
 cross_validation: {
-                target_cols: ["attribute_ids"],
+                target_cols: ["target"],
                 problem_type: "multilabel_classification",
                 multilabel_delimiter: " ",
-                shuffle: True
-                  }
+                shuffle: True,
+                num_folds: 5,
+                random_state: 42
+                }
 catergorical_features: {
 
                         }

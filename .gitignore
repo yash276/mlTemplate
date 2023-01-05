@@ -141,6 +141,7 @@ cython_debug/
 # input data and models
 input/
 models/
+output/
 
 #data files
 *.csv

@@ -2,7 +2,7 @@ input: {
         train_file: "input/train.csv",
         test_file: "",
         validation_file: "",
-        output_path: ""
+        output_path: "output"
         }
 cross_validation: {
                 target_cols: ["target"],

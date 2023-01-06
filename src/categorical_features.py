@@ -4,9 +4,7 @@ class CategoricalFeatures:
     def __init__(
         self,
         dataframe,
-        categorical_features,
-        enc_type,
-        handle_na=False
+        cat_feats_cfg: dict
         ):
         """_summary_
 
@@ -19,9 +17,9 @@ class CategoricalFeatures:
         # the dataframe should not have NA values
         self.dataframe = dataframe
         
-        self.cat_feats = categorical_features
-        self.enc_types = enc_type
-        self.handle_na = handle_na
+        self.cat_feats = cat_feats_cfg['categorical_features']
+        self.enc_types = cat_feats_cfg['enc_type']
+        self.handle_na = cat_feats_cfg['handle_na']
         self.label_encoders = dict()
         self.binary_encoders = dict()
         self.ohe = None

@@ -12,7 +12,10 @@ cross_validation: {
                 random_state: 42
                 }
 catergorical_features: {
-
+                        # the vlaue of this key will be filled by the pipeline automatically 
+                        categorical_features: [],
+                        enc_type: "ohe",
+                        handle_na: False
                         }
 numerical_features: {
 

@@ -3,11 +3,11 @@ from sklearn import model_selection
 class CrossValidation:
     
     def __init__(self,
-                 input_cfg: dict, 
+                 dataframe: pd.DataFrame, 
                  cv_cfg: dict
                  ):
         
-        self.dataframe = pd.read_csv(input_cfg['train_file'])
+        self.dataframe = dataframe
         self.target_cols = cv_cfg['target_cols']
         self.num_targets = len(self.target_cols)
         self.problem_type = cv_cfg['problem_type']

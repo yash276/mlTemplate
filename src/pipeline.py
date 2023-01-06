@@ -15,7 +15,7 @@ def pipeline(cfg : dict):
     eda.eda(dataframe = train_df)
     # Step 2 Perform Cross Validation
     cv_cfg = cfg['cross_validation']
-    cv = cross_validation.CrossValidation(input_cfg = input_cfg,
+    cv = cross_validation.CrossValidation(dataframe = train_df,
                                           cv_cfg = cv_cfg)
     train_df = cv.split()
     # Step 3 Seperate Categorical and Numerical Features

@@ -1,44 +1,57 @@
-from sklearn import model_selection
 import pandas as pd
+from sklearn import model_selection
 class CrossValidation:
-    """
-    binary classification
-    multi class classification
-    multi label classification
-    single column regression
-    multi column regression
-    holdout
-    """
+    
     def __init__(self,
                  input_cfg: dict, 
                  cv_cfg: dict
-                 ) -> pd.DataFrame:
+                 ):
         
         self.dataframe = pd.read_csv(input_cfg['train_file'])
         self.target_cols = cv_cfg['target_cols']
         self.num_targets = len(self.target_cols)
         self.problem_type = cv_cfg['problem_type']
-        self.multilabel_delimiter = cv_cfg['multilabel_delimiter']
-        self.num_folds = cv_cfg['num_folds']
-        self.shuffle = cv_cfg['shuffle']
-        self.random_state = cv_cfg['random_state']
-        
+        # assiging some default values if the keys are missing
+        if 'multilabel_delimiter' in cv_cfg:
+            self.multilabel_delimiter = cv_cfg['multilabel_delimiter']
+        else:
+            self.multilabel_delimiter = " "
+            
+        if 'num_folds' in cv_cfg:
+            self.num_folds = cv_cfg['num_folds']
+        else:
+            self.num_folds = 5
+            
+        if 'shuffle' in cv_cfg:
+            self.shuffle = cv_cfg['shuffle']
+        else:
+            self.shuffle = True
+            
+        if 'random_state' in cv_cfg:
+            self.random_state = cv_cfg['random_state']
+        else:
+            self.random_state = 42
+            
         if self.shuffle is True:
             self.dataframe = self.dataframe.sample(frac=1).reset_index(drop=True)
         self.dataframe['kfold'] = -1
     
-    def split(self):
-        """_summary_
+    def split(self) -> pd.DataFrame:
+        """
+        Performs cross-validation on the training dataframe based on problem statement defined in config.
 
         Raises:
-            Exception: _description_
-            Exception: _description_
-            Exception: _description_
-            Exception: _description_
-            Exception: _description_
+            Exception: Invalid number of target for binary_classification and 
+            multiclass_classification problem type
+            Exception: Only one unique value found in Target for binary_classification and 
+            multiclass_classification problem type
+            Exception: Invalid number of target for single_column_regression and 
+            multi_column_regression problem type
+            Exception: Invalid number of target for multilabel_classification problem type
+            Exception: Funnny problem type not Understood
 
         Returns:
-            _type_: _description_
+            pd.DataFrame: shuffled dataframe along with the folds information in kfold column
         """
         if self.problem_type in ("binary_classification", "multiclass_classification"):
             if self.num_targets > 1 :

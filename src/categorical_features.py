@@ -1,23 +1,15 @@
+import pandas as pd
 from sklearn import preprocessing
 
 class CategoricalFeatures:
     def __init__(
         self,
-        dataframe,
+        dataframe: pd.DataFrame,
         cat_feats_cfg: dict
         ):
-        """_summary_
-
-        Args:
-            dataframe (_type_): _description_
-            categorical_features (_type_): _description_
-            enc_type (_type_): _description_
-            handle_na (bool, optional): _description_. Defaults to False.
-        """
-        # the dataframe should not have NA values
-        self.dataframe = dataframe
         
-        self.cat_feats = cat_feats_cfg['categorical_features']
+        self.dataframe = dataframe
+        self.cat_feats = cat_feats_cfg['cols']
         self.enc_types = cat_feats_cfg['enc_type']
         self.handle_na = cat_feats_cfg['handle_na']
         self.label_encoders = dict()
@@ -65,26 +57,7 @@ class CategoricalFeatures:
         elif self.enc_types == "binary":
             return self._binarization()
         else:
-            raise Exception("Encoding type not understood")
-    
-    def transform(self,dataframe):
-        if self.handle_na:
-            for feat in self.cat_feats:
-                dataframe.loc[:,feat] = dataframe.loc[:,feat].astype(str).fillna("-9999999")
-        if self.enc_types == "label":
-            for col, lbl in self.label_encoders.items():
-                dataframe.loc[:,col] = lbl.transform(dataframe[col].values)
-                
-        elif self.enc_types == "binary":
-            for col, lbl in self.binary_encoders.items():
-                val = lbl.transform(self.dataframe[feat].values)
-                dataframe = dataframe.drop(feat,axis=1)
-            
-                for j in range(val.shape[1]):
-                    new_col_name = feat + f'__bin_{j}'
-                    dataframe[new_col_name] = val[:,j]
-        
-        return dataframe      
+            raise Exception("Encoding type not understood")    
 
 if __name__ == "__main__":
     import pandas as pd

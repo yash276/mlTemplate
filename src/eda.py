@@ -4,7 +4,7 @@ import pandas as pd
 from pandas_profiling import ProfileReport
 from yaml.loader import SafeLoader
 
-def eda(dataframe : pd.DataFrame) -> None :    
+def eda(input_cfg: dict) -> None :    
     """
     The function generates an automated EDA report and save it in a HTML format.
     The generated report can be shared across and is platform independent.
@@ -18,6 +18,7 @@ def eda(dataframe : pd.DataFrame) -> None :
                 output_path: "output"
             }
     """
+    dataframe = pd.read_csv(input_cfg['train_file'])
     output_file_path = os.path.join(input_cfg['output_path'],'EDA.html')
     
     profile = ProfileReport(dataframe,title="EDA Report")

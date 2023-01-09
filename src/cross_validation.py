@@ -63,7 +63,6 @@ class CrossValidation:
                 raise Exception("Only one unique value found for Target")
             elif unique_values > 1:
                 # use stratified k-fold
-                
                 kf =  model_selection.StratifiedKFold(n_splits=self.num_folds,
                                                       shuffle=False
                                                       )

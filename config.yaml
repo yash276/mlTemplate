@@ -1,21 +1,20 @@
 input: {
-        train_file: "input/train.csv",
-        test_file: "",
+        train_file: "input/home-data-for-ml-course/train.csv",
+        test_file: "input/home-data-for-ml-course/test.csv",
+        target_cols: ["SalePrice"],
         output_path: "output"
         }
 cross_validation: {
-                target_cols: ["target"],
-                problem_type: "multilabel_classification",
+                target_cols: ["SalePrice"],
+                problem_type: "single_column_regression",
                 multilabel_delimiter: " ",
                 shuffle: True,
                 num_folds: 5,
                 random_state: 42
                 }
-catergorical_features: {
-                        # the vlaue of this key will be filled by the pipeline automatically 
-                        categorical_features: [],
-                        enc_type: "ohe",
-                        handle_na: False
+categorical_features: {
+                        enc_type: "label",
+                        handle_na: True
                         }
 numerical_features: {
 

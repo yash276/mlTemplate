@@ -4,14 +4,6 @@ input: {
         target_cols: ["target"],
         output_path: "output"
         }
-cross_validation: {
-                target_cols: ["target"],
-                problem_type: "binary_classification",
-                multilabel_delimiter: " ",
-                shuffle: True,
-                num_folds: 5,
-                random_state: 42
-                }
 categorical_features: {
                         enc_type: "label",
                         handle_na: True
@@ -19,3 +11,13 @@ categorical_features: {
 numerical_features: {
 
                     }
+cross_validation: {
+                problem_type: "binary_classification",
+                multilabel_delimiter: " ",
+                shuffle: True,
+                num_folds: 5,
+                random_state: 42
+                }
+training: {
+        model: "logistic"
+}

@@ -1,18 +1,20 @@
 input: {
         train_file: "input/train.csv",
-        test_file: "",
+        test_file: "input/test.csv",
+        target_cols: ["target"],
         output_path: "output"
         }
 cross_validation: {
                 target_cols: ["target"],
-                problem_type: "multilabel_classification",
+                problem_type: "binary_classification",
                 multilabel_delimiter: " ",
                 shuffle: True,
                 num_folds: 5,
                 random_state: 42
                 }
-catergorical_features: {
-
+categorical_features: {
+                        enc_type: "label",
+                        handle_na: True
                         }
 numerical_features: {
 

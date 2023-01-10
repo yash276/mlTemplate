@@ -18,10 +18,10 @@ def eda(input_cfg: dict) -> None :
                 output_path: "output"
             }
     """
-    df = pd.read_csv(input_cfg['train_file'])
+    dataframe = pd.read_csv(input_cfg['train_file'])
     output_file_path = os.path.join(input_cfg['output_path'],'EDA.html')
     
-    profile = ProfileReport(df,title="EDA Report")
+    profile = ProfileReport(dataframe,title="EDA Report")
     profile.to_file(output_file_path)
 
 if __name__ == "__main__":
@@ -30,4 +30,5 @@ if __name__ == "__main__":
         cfg = yaml.load(f,Loader=SafeLoader)
     
     input_cfg = cfg['input']
-    eda(input_cfg)
+    train_df = pd.read_csv(input_cfg['train_file'])
+    eda.eda(dataframe = train_df)

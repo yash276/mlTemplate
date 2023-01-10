@@ -3,11 +3,11 @@ from sklearn import model_selection
 class CrossValidation:
     
     def __init__(self,
-                 input_cfg: dict, 
+                 dataframe: pd.DataFrame, 
                  cv_cfg: dict
                  ):
         
-        self.dataframe = pd.read_csv(input_cfg['train_file'])
+        self.dataframe = dataframe
         self.target_cols = cv_cfg['target_cols']
         self.num_targets = len(self.target_cols)
         self.problem_type = cv_cfg['problem_type']
@@ -63,12 +63,10 @@ class CrossValidation:
                 raise Exception("Only one unique value found for Target")
             elif unique_values > 1:
                 # use stratified k-fold
-                
                 kf =  model_selection.StratifiedKFold(n_splits=self.num_folds,
                                                       shuffle=False
                                                       )
                 for fold,(train_idx,val_idx) in enumerate(kf.split(X=self.dataframe,y=self.dataframe[target].values)):
-                    print(len(train_idx),len(val_idx))
                     self.dataframe.loc[val_idx,'kfold'] = fold
             
         elif self.problem_type in ("single_column_regression","multi_column_regression"):
@@ -81,7 +79,6 @@ class CrossValidation:
                                         shuffle=False
                                         )
             for fold,(train_idx,val_idx) in enumerate(kf.split(X=self.dataframe)):
-                print(len(train_idx),len(val_idx))
                 self.dataframe.loc[val_idx,'kfold'] = fold
 
         elif self.problem_type.startswith("holdout_"):
@@ -96,7 +93,6 @@ class CrossValidation:
             target = self.dataframe[self.target_cols[0]].apply(lambda x : len(str(x).split(self.multilabel_delimiter)))
             kf =  model_selection.StratifiedKFold(n_splits=self.num_folds)
             for fold,(train_idx,val_idx) in enumerate(kf.split(X=self.dataframe,y=target)):
-                print(len(train_idx),len(val_idx))
                 self.dataframe.loc[val_idx,'kfold'] = fold
         else:
             raise Exception("Funnny problem type not Understood")

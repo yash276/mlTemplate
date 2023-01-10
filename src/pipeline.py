@@ -2,6 +2,7 @@
 from . import eda
 from . import cross_validation
 from . import categorical_features
+from . import train
 # import python libraries
 import os
 import yaml
@@ -15,7 +16,7 @@ def pipeline(cfg : dict):
     test_df = pd.read_csv(input_cfg['test_file'])
     test_df[input_cfg['target_cols']] = -1
     train_len = len(train_df)
-    test_len = len(test_df)
+    
     # Step 1 Perform The Automatic EDA
     eda.eda(input_cfg = input_cfg)
     # Step 2 Seperate Categorical Features for Train and Test
@@ -48,10 +49,20 @@ def pipeline(cfg : dict):
     # Step 3 perform numerical feature engineering
     # Step 4 Perform Cross Validation
     cv_cfg = cfg['cross_validation']
+    cv_cfg['target_cols'] = input_cfg['target_cols']
     cv = cross_validation.CrossValidation(dataframe = train_df,
                                           cv_cfg = cv_cfg)
     train_df = cv.split()
-    # Step 5 Train the Model
+    # Step 5 Model Dispatcher and Training
+    # Fill in the train config with the details of above steps 
+    train_cfg = cfg['training']
+    train_cfg['target_cols'] = input_cfg['target_cols']
+    train_cfg['output_path'] = input_cfg['output_path']
+    # run the training for each fold and save the model for each fold
+    for fold in range(cv_cfg['num_folds']):
+        train_cfg['num_folds'] = fold
+        train.train(dataframe= train_df , train_cfg=train_cfg)
+    
     # Step 6 Check The Underlying Assumptions and Gain Insights About The Data
     # Step 7 Prediction
 

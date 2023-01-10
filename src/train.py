@@ -1,56 +1,43 @@
-from sklearn import preprocessing
-from sklearn import ensemble
-import pandas as pd
-import os 
-
-from sklearn import metrics
 from . import dispatcher
+import pandas as pd
+from sklearn import metrics
 import joblib
 
-TRAINING_DATA = os.environ.get("TRAINING_DATA")
-TEST_DATA = os.environ.get("TEST_DATA")
-FOLD = int(os.environ.get("FOLD"))
-MODEL = os.environ.get("MODEL")
-
-FOLD_MAPPING ={
-    0: [1, 2, 3, 4],
-    1: [0, 2, 3, 4],
-    2: [0, 1, 3, 4],
-    3: [0, 1, 2, 4],
-    4: [0, 1, 2, 3]
-}
-
-if __name__ == "__main__":
+def train(
+    dataframe: pd.DataFrame,
+    train_cfg: dict
+    ):
+    fold = train_cfg['num_folds']
+    # get the Training and validation data for this fold
+    # training data is where the kfold is not equal to the fold
+    # validation data is where the kfold is equal to the fold
+    train_df = dataframe[dataframe.kfold != fold].reset_index(drop=True)
+    val_df = dataframe[dataframe.kfold==fold].reset_index(drop=True)
     
-    df = pd.read_csv(TRAINING_DATA)
-    test_df = pd.read_csv(TEST_DATA)
-    train_df = df[df.kfold.isin(FOLD_MAPPING.get(FOLD))]
-    valid_df = df[df.kfold==FOLD]
-
-    ytrain = train_df.target.values
-    yvalid = valid_df.target.values
-
-    train_df = train_df.drop(["id","target","kfold"],axis=1)
-    valid_df = valid_df.drop(["id","target","kfold"],axis=1)
+    # drop the kfold and target column    
+    # convert it into a numpy array
+    x_train = train_df.drop(['kfold'],axis=1).values
+    x_train = train_df.drop(train_cfg['target_cols'],axis=1).values
+    y_train = train_df[train_cfg['target_cols']].values
     
-    valid_df = valid_df[train_df.columns]
-
-    label_encoders = {}
-
-    for column in train_df.columns:
-        lbl = preprocessing.LabelEncoder()
-        lbl.fit(train_df[column].values.tolist() + valid_df[column].values.tolist() + test_df[column].values.tolist())
-        train_df.loc[:,column] = lbl.transform(train_df[column].values.tolist())
-        valid_df.loc[:,column] = lbl.transform(valid_df[column].values.tolist())
-        label_encoders[column] = lbl
+    # perform the same for validation
+    x_val = val_df.drop(['kfold'],axis=1).values
+    x_val = val_df.drop(train_cfg['target_cols'],axis=1).values
+    y_val = val_df[train_cfg['target_cols']].values
     
-    # data ready to train
-    classifier = dispatcher.models[MODEL]
-    classifier.fit(train_df,ytrain)
-    preds = classifier.predict_proba(valid_df)[:,1]
-    # Roc_auc_score because data is skewed
-    print(metrics.roc_auc_score(yvalid,preds))
+    # fetch the model from the model dispatcher
+    clf = dispatcher.models[train_cfg['model']]
+    
+    #fit the model on the training data
+    clf.fit(x_train,y_train)
+    
+    # create probabilities for validation samples
+    preds = clf.predict_proba(x_val)[:,1]
 
-    joblib.dump(label_encoders,f"model/{MODEL}_{FOLD}_label_encoder.pkl")
-    joblib.dump(classifier,f"model/{MODEL}_{FOLD}.pkl")
-    joblib.dump(train_df.columns,f"model/{MODEL}_{FOLD}_columns.pkl")
+    # get roc auc score
+    auc = metrics.roc_auc_score(y_val,preds)
+    # print the auc score
+    print(f"Fold={fold}, AUC SCORE={auc}") 
+    # save the model along with fold number
+    joblib.dump(clf,f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}.pkl")
+    joblib.dump(train_df.columns,f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}_columns.pkl")

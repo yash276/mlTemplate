@@ -17,7 +17,7 @@ def pipeline(cfg : dict):
     train_len = len(train_df)
     test_len = len(test_df)
     # Step 1 Perform The Automatic EDA
-    # eda.eda(input_cfg = input_cfg)
+    eda.eda(input_cfg = input_cfg)
     # Step 2 Seperate Categorical Features for Train and Test
     cat_feats_cfg = cfg['categorical_features']
     if "cols" in cat_feats_cfg:
@@ -51,7 +51,6 @@ def pipeline(cfg : dict):
     cv = cross_validation.CrossValidation(dataframe = train_df,
                                           cv_cfg = cv_cfg)
     train_df = cv.split()
-    print(train_df)
     # Step 5 Train the Model
     # Step 6 Check The Underlying Assumptions and Gain Insights About The Data
     # Step 7 Prediction

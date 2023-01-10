@@ -45,9 +45,9 @@ class CategoricalFeatures:
     
     def _one_hot_encoder(self):
         ohe = preprocessing.OneHotEncoder()
-        ohe.fit(self.dataframe[self.cat_feats].values)
-        
-        return ohe.transform(self.dataframe_d_copy[self.cat_feats].values)
+        ohe.fit(self.dataframe[self.cat_feats])
+        # x = pd.DataFrame(ohe.transform(self.dataframe_d_copy[self.cat_feats]).toarray())
+        return ohe.transform(self.dataframe_d_copy[self.cat_feats])
     
     def fit_transform(self):
         if self.enc_types == "label":

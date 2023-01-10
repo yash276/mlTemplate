@@ -1,12 +1,12 @@
 input: {
-        train_file: "input/home-data-for-ml-course/train.csv",
-        test_file: "input/home-data-for-ml-course/test.csv",
-        target_cols: ["SalePrice"],
+        train_file: "input/train.csv",
+        test_file: "input/test.csv",
+        target_cols: ["target"],
         output_path: "output"
         }
 cross_validation: {
-                target_cols: ["SalePrice"],
-                problem_type: "single_column_regression",
+                target_cols: ["target"],
+                problem_type: "binary_classification",
                 multilabel_delimiter: " ",
                 shuffle: True,
                 num_folds: 5,

@@ -1,7 +1,7 @@
 # import files/functions from our code
 from . import eda
-from . import cross_validation
 from . import categorical_features
+from . import cross_validation
 from . import train
 # import python libraries
 import os
@@ -63,7 +63,9 @@ def pipeline(cfg : dict):
         train_cfg['num_folds'] = fold
         train.train(dataframe= train_df , train_cfg=train_cfg)
     
-    # Step 6 Check The Underlying Assumptions and Gain Insights About The Data
+    # Step 6 Regression Analysis
+    # checking the goddness of fit
+    # And checking the statistical significance
     # Step 7 Prediction
 
 if __name__ == "__main__":

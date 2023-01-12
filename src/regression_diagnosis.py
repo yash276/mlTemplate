@@ -31,7 +31,8 @@ class RegressionDiagnosis:
         # select only Top 5 variables 
         selector = SelectKBest(chi2,k=5)
         # give the targetcolumn and the rest of the data to the scalar to fit
-        selector.fit(categorical_df,self.train_df[self.diagnosis_cfg['target_cols']])
+        print(categorical_df.head())
+        selector.fit(categorical_df,self.train_df["target"])
         # get the indicies of the selected columns
         cols = selector.get_support(indices=True)
 

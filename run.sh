@@ -11,5 +11,6 @@
 # All the test Anova , T-Test, Chi-Squared
 # Get insights about Feature Selection and Engineering by looking at things like 
 # p-values and violation of Regression
+# As an information giver it needs to do everything
 export CONFIG=config.yaml
 python3 -m src.pipeline

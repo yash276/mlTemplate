@@ -1,6 +1,6 @@
 # import files/functions from our code
 from . import eda
-from . import categorical_features
+from . import feature_selection
 from . import cross_validation
 from . import train
 from . import regression_diagnosis
@@ -15,42 +15,29 @@ def pipeline(cfg : dict):
     input_cfg = cfg['input']
     train_df = pd.read_csv(input_cfg['train_file'])
     test_df = pd.read_csv(input_cfg['test_file'])
+    
     # create deep copies of dataframes so that we can use original whereever required
     train_df_d_copy = train_df.copy(deep=True)
     test_df_d_copy = test_df.copy(deep=True)
     
-    test_df_d_copy[input_cfg['target_cols']] = -1
-    train_len = len(train_df_d_copy)
-    
     # Step 1 Perform The Automatic EDA
-    eda.eda(input_cfg = input_cfg)
-    # Step 2 Seperate Categorical Features for Train and Test
-    cat_feats_cfg = cfg['categorical_features']
-    if "cols" in cat_feats_cfg:
-        cat_feats = cat_feats_cfg['cols']
-    else:
-        # select all the columns that have dtype as object as categorical and remaning as numerical
-        # convert them to list
-        train_cats = train_df_d_copy.select_dtypes(include='object').columns.tolist()
-        test_cats = test_df_d_copy.select_dtypes(include='object').columns.tolist()
-        
-        train_nums = train_df_d_copy.select_dtypes(exclude='object').columns.tolist()
-        test_nums = test_df_d_copy.select_dtypes(exclude='object').columns.tolist()
-        # to remove dulicates from train and test data
-        cat_feats = list(set(train_cats + test_cats))
-        cat_feats_cfg['cols'] = cat_feats
-        num_feats = list(set(train_nums + test_nums))
-        
-    full_dataframe = pd.concat([train_df_d_copy, test_df_d_copy]).reset_index(drop=True)
-    cat_feats = categorical_features.CategoricalFeatures(
-        dataframe = full_dataframe,
-        cat_feats_cfg = cat_feats_cfg 
-    )
-    full_df_cats = cat_feats.fit_transform()
+    # eda.eda(input_cfg = input_cfg)
+    # Step 2 Perform Feature Selection for Categorical and Numerical Features
+    feature_selection_cfg = cfg['feature_selection']
+    feature_selection_cfg['target_cols'] = input_cfg['target_cols']
+    feature_selection_cfg['output_path'] = input_cfg['output_path']
     
-    #split the training and test data again 
-    train_df_d_copy = full_df_cats.iloc[:train_len , :]
-    test_df_d_copy = full_df_cats.iloc[train_len: , :]
+    feature_select = feature_selection.FeatureSelection(
+        train_df= train_df_d_copy,
+        test_df= test_df_d_copy,
+        feature_selection_cfg= feature_selection_cfg
+    )
+    # run_tests and select_best are optional to run
+    feature_select.run_tests()
+    feature_select.select_best()
+    
+    train_df_d_copy,  test_df_d_copy = feature_select.get_df()
+    
     # Step 3 perform numerical feature engineering
     # Step 4 Perform Cross Validation
     cv_cfg = cfg['cross_validation']
@@ -69,14 +56,14 @@ def pipeline(cfg : dict):
         train_cfg['num_folds'] = fold
         clfs.append(train.train(dataframe= train_df_d_copy , train_cfg=train_cfg))
     
-    # Step 6 Regression Analysis
-    diagnosis_cfg = cfg['diagnosis']
-    diagnosis_cfg['classifiers'] = clfs
-    diagnosis_cfg['cat_cols'] = cat_feats_cfg['cols']
-    diagnosis_cfg['target_cols'] = input_cfg['target_cols']
-    diagnosis_cfg['output_path'] = input_cfg['output_path']
-    # !Note Send original Train and Test Dataframes for Diagnosis of Regression
-    regression_diagnosis.RegressionDiagnosis(train_df,test_df,diagnosis_cfg)
+    # # Step 6 Regression Analysis
+    # diagnosis_cfg = cfg['diagnosis']
+    # diagnosis_cfg['classifiers'] = clfs
+    # diagnosis_cfg['cat_cols'] = cat_feats_cfg['cols']
+    # diagnosis_cfg['target_cols'] = input_cfg['target_cols']
+    # diagnosis_cfg['output_path'] = input_cfg['output_path']
+    # # !Note Send original Train and Test Dataframes for Diagnosis of Regression
+    # regression_diagnosis.RegressionDiagnosis(train_df,test_df,diagnosis_cfg)
     # checking the goddness of fit
     # And checking the statistical significance
     # Step 7 Prediction

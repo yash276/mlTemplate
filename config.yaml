@@ -13,7 +13,9 @@ feature_selection: {
         numerical_features: {
 
                     },
-        cols_to_drop: ['id']
+        cols_to_drop: ['id'],
+        run_tests: True,
+        select_best: True
 
 }
 cross_validation: {

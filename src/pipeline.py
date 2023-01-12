@@ -21,7 +21,8 @@ def pipeline(cfg : dict):
     test_df_d_copy = test_df.copy(deep=True)
     
     # Step 1 Perform The Automatic EDA
-    # eda.eda(input_cfg = input_cfg)
+    eda.eda(input_cfg = input_cfg)
+    
     # Step 2 Perform Feature Selection for Categorical and Numerical Features
     feature_selection_cfg = cfg['feature_selection']
     feature_selection_cfg['target_cols'] = input_cfg['target_cols']
@@ -32,19 +33,16 @@ def pipeline(cfg : dict):
         test_df= test_df_d_copy,
         feature_selection_cfg= feature_selection_cfg
     )
-    # run_tests and select_best are optional to run
-    feature_select.run_tests()
-    # feature_select.select_best()
-    
     train_df_d_copy,  test_df_d_copy = feature_select.get_df()
-    # Step 3 perform numerical feature engineering
-    # Step 4 Perform Cross Validation
+    
+    # Step 3 Perform Cross Validation
     cv_cfg = cfg['cross_validation']
     cv_cfg['target_cols'] = input_cfg['target_cols']
     cv = cross_validation.CrossValidation(dataframe = train_df_d_copy,
                                           cv_cfg = cv_cfg)
     train_df_d_copy = cv.split()
-    # Step 5 Model Dispatcher and Training
+    
+    # Step 4 Model Dispatcher and Training
     # Fill in the train config with the details of above steps 
     train_cfg = cfg['training']
     train_cfg['target_cols'] = input_cfg['target_cols']
@@ -54,18 +52,8 @@ def pipeline(cfg : dict):
     for fold in range(cv_cfg['num_folds']):
         train_cfg['num_folds'] = fold
         clfs.append(train.train(dataframe= train_df_d_copy , train_cfg=train_cfg))
-    
-    # # Step 6 Regression Analysis
-    # diagnosis_cfg = cfg['diagnosis']
-    # diagnosis_cfg['classifiers'] = clfs
-    # diagnosis_cfg['cat_cols'] = cat_feats_cfg['cols']
-    # diagnosis_cfg['target_cols'] = input_cfg['target_cols']
-    # diagnosis_cfg['output_path'] = input_cfg['output_path']
-    # # !Note Send original Train and Test Dataframes for Diagnosis of Regression
-    # regression_diagnosis.RegressionDiagnosis(train_df,test_df,diagnosis_cfg)
-    # checking the goddness of fit
-    # And checking the statistical significance
-    # Step 7 Prediction
+
+    # Step 5 Prediction
 
 if __name__ == "__main__":
     # read/create the config dict for pipeline

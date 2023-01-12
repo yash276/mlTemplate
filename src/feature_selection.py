@@ -49,8 +49,7 @@ class FeatureSelection:
         for feats in temp_train_df:
             if feats not in self.cat_feats_cfg['cols'] and feats not in self.num_feats_cfg['cols']:
                 self.full_dataframe = self.full_dataframe.drop(feats,axis=1)
-        print(self.full_dataframe)
-        print("------------------------------------------------------")
+        
         # create the categorical class constructor
         self.cat_feats = categorical_features.CategoricalFeatures(
             dataframe = self.full_dataframe[self.cat_feats_cfg['cols']],
@@ -61,6 +60,12 @@ class FeatureSelection:
             dataframe= self.full_dataframe[self.num_feats_cfg['cols']],
             num_feats_cfg= self.num_feats_cfg
         )
+        
+         # Run run_tests and select_best according to config
+        if feature_selection_cfg['run_tests']:
+            self.run_tests()
+        if feature_selection_cfg['select_best']:
+            self.select_best()
     
     def run_tests(self):
         # perform and produce results for some tests
@@ -69,11 +74,6 @@ class FeatureSelection:
     def select_best(self):
         # select the best features 
         self.cat_feats.select_best(self.train_df)
-    
-    # def fit_transform(self):
-    #     # then transform the features  
-    #     self.full_dataframe = self.cat_feats.fit_transform()
-
     
     def get_df(self):
         # beforing sending the dataframe make sure to perform transformation on the data
@@ -93,6 +93,6 @@ class FeatureSelection:
         test_df = pd.concat([test_cats_df,test_num_df],axis=1)
         
         # add the target column back to the train df
-        train_df[self.cat_feats_cfg['target_cols']] = self.train_df[self.cat_feats_cfg['target_cols']]
+        train_df[self.cat_feats_cfg['target_cols']] = self.train_df[self.cat_feats_cfg['target_cols']].values.tolist()
         
         return train_df , test_df

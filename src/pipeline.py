@@ -34,10 +34,9 @@ def pipeline(cfg : dict):
     )
     # run_tests and select_best are optional to run
     feature_select.run_tests()
-    feature_select.select_best()
+    # feature_select.select_best()
     
     train_df_d_copy,  test_df_d_copy = feature_select.get_df()
-    
     # Step 3 perform numerical feature engineering
     # Step 4 Perform Cross Validation
     cv_cfg = cfg['cross_validation']

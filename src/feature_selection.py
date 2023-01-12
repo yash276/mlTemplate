@@ -10,7 +10,10 @@ class FeatureSelection:
                  ) -> None:
         # extract the datasets and create a full dataset
         self.train_df = train_df
+        self.train_df = self.train_df.drop(feature_selection_cfg['cols_to_drop'],axis=1)
+        
         self.test_df = test_df
+        self.test_df = self.test_df.drop(feature_selection_cfg['cols_to_drop'],axis=1)
         # get the length of the training data
         # it will be usefull to seperate the training and test data later on 
         self.train_len = len(self.train_df)

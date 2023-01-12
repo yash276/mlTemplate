@@ -4,13 +4,20 @@ input: {
         target_cols: ["target"],
         output_path: "output"
         }
-categorical_features: {
-                        enc_type: "label",
-                        handle_na: True
-                        }
-numerical_features: {
+feature_selection: {
+        categorical_features: {
+                        enc_types: "label",
+                        handle_na: True,
+                        num_best: 5,
+                        },
+        numerical_features: {
 
-                    }
+                    },
+        cols_to_drop: ['id'],
+        run_tests: True,
+        select_best: True
+
+}
 cross_validation: {
                 problem_type: "binary_classification",
                 multilabel_delimiter: " ",
@@ -20,4 +27,12 @@ cross_validation: {
                 }
 training: {
         model: "logistic"
+}
+diagnosis: {
+        goodness_of_fit: {
+
+        },
+        statistical_significance: {
+
+        }
 }

@@ -27,6 +27,7 @@ def train(
     
     # fetch the model from the model dispatcher
     clf = dispatcher.models[train_cfg['model']]
+    print(type(clf))
     
     #fit the model on the training data
     clf.fit(x_train,y_train)
@@ -41,3 +42,5 @@ def train(
     # save the model along with fold number
     joblib.dump(clf,f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}.pkl")
     joblib.dump(train_df.columns,f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}_columns.pkl")
+    
+    return clf

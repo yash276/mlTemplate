@@ -1,5 +1,6 @@
 from . import utils
 import os
+import joblib
 import pandas as pd
 from sklearn import preprocessing
 from sklearn.feature_selection import chi2  
@@ -82,6 +83,7 @@ class CategoricalFeatures:
             lbl.fit(self.dataframe[feat].values)
             self.dataframe_d_copy.loc[:,feat] = lbl.transform(self.dataframe[feat].values)
             self.label_encoders[feat] = lbl
+        joblib.dump(self.label_encoders, f"{self.output_path}/_label_encoder.pkl")
         return self.dataframe_d_copy
     
     def _binarization(self):
@@ -94,8 +96,8 @@ class CategoricalFeatures:
             for j in range(val.shape[1]):
                 new_col_name = feat + f'__bin_{j}'
                 self.dataframe_d_copy[new_col_name] = val[:,j] 
-        self.binary_encoders[feat] = lbl
-        
+            self.binary_encoders[feat] = lbl
+        joblib.dump(self.binary_encoders, f"{self.output_path}/_binary_encoder.pkl")
         return self.dataframe_d_copy
     
     def _one_hot_encoder(self):

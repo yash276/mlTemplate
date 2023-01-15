@@ -27,7 +27,7 @@ def train(
     
     # fetch the model from the model dispatcher
     clf = dispatcher.models[train_cfg['model']]
-    print(type(clf))
+    
     
     #fit the model on the training data
     clf.fit(x_train,y_train)

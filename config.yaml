@@ -28,11 +28,3 @@ cross_validation: {
 training: {
         model: "logistic"
 }
-diagnosis: {
-        goodness_of_fit: {
-
-        },
-        statistical_significance: {
-
-        }
-}

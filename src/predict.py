@@ -11,6 +11,16 @@ TRAINING_DATA = os.environ.get("TRAINING_DATA")
 TEST_DATA = os.environ.get("TEST_DATA")
 MODEL = os.environ.get("MODEL")
 
+class Prediction:
+    def __init__(
+        self,
+        dataframe: pd.DataFrame,
+        train_cfg: dict) -> None:
+        
+        self.dataframe = dataframe
+        
+
+
 def predict():
 
     predictions = None

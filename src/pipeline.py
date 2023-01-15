@@ -3,7 +3,7 @@ from . import eda
 from . import feature_selection
 from . import cross_validation
 from . import train
-from . import regression_diagnosis
+
 # import python libraries
 import os
 import yaml

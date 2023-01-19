@@ -21,6 +21,7 @@ class FeatureSelection:
         temp_train_df = self.train_df.drop(feature_selection_cfg['target_cols'],axis=1)
         
         # extract categorical and numerical features config
+        self.feature_select_cfg = feature_selection_cfg
         self.cat_feats_cfg = feature_selection_cfg['categorical_features']
         self.cat_feats_cfg['target_cols'] = feature_selection_cfg['target_cols']
         self.cat_feats_cfg['output_path'] = feature_selection_cfg['output_path']
@@ -73,7 +74,7 @@ class FeatureSelection:
     
     def select_best(self):
         # select the best features 
-        self.cat_feats.select_best(self.train_df)
+        self.feature_select_cfg['categorical_features']['cols'] = self.cat_feats_cfg['cols'] = self.cat_feats.select_best(self.train_df)
     
     def get_df(self):
         # beforing sending the dataframe make sure to perform transformation on the data
@@ -96,3 +97,6 @@ class FeatureSelection:
         train_df[self.cat_feats_cfg['target_cols']] = self.train_df[self.cat_feats_cfg['target_cols']].values.tolist()
         
         return train_df , test_df
+    
+    def get_config(self):
+        return self.feature_select_cfg

@@ -8,6 +8,7 @@ class CrossValidation:
                  ):
         
         self.dataframe = dataframe
+        self.cv_cfg = cv_cfg
         self.target_cols = cv_cfg['target_cols']
         self.num_targets = len(self.target_cols)
         self.problem_type = cv_cfg['problem_type']
@@ -98,3 +99,6 @@ class CrossValidation:
             raise Exception("Funnny problem type not Understood")
             
         return self.dataframe
+    
+    def get_config(self):
+        return self.cv_cfg

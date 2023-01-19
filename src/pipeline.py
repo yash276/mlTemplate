@@ -1,9 +1,9 @@
 # import files/functions from our code
 from . import eda
-from . import feature_selection
-from . import cross_validation
 from . import train
 from . import predict
+from . import cross_validation
+from . import feature_selection
 
 # import python libraries
 import os
@@ -22,7 +22,7 @@ def pipeline(cfg : dict):
     test_df_d_copy = test_df.copy(deep=True)
     
     # Step 1 Perform The Automatic EDA
-    eda.eda(input_cfg = input_cfg)
+    # eda.eda(input_cfg = input_cfg)
     
     # Step 2 Perform Feature Selection for Categorical and Numerical Features
     feature_selection_cfg = cfg['feature_selection']
@@ -35,6 +35,8 @@ def pipeline(cfg : dict):
         feature_selection_cfg= feature_selection_cfg
     )
     train_df_d_copy,  test_df_d_copy = feature_select.get_df()
+    # get the updated dict for feature selection
+    cfg['feature_selection'] = feature_select.get_config()
     
     # Step 3 Perform Cross Validation
     cv_cfg = cfg['cross_validation']
@@ -42,28 +44,30 @@ def pipeline(cfg : dict):
     cv = cross_validation.CrossValidation(dataframe = train_df_d_copy,
                                           cv_cfg = cv_cfg)
     train_df_d_copy = cv.split()
-    cfg['cross_validation'] = cv_cfg
+    # get the updated dict for feature selection
+    cfg['cross_validation'] = cv.get_config()
     
     # Step 4 Model Dispatcher and Training
     # Fill in the train config with the details of above steps 
     train_cfg = cfg['training']
     train_cfg['target_cols'] = input_cfg['target_cols']
     train_cfg['output_path'] = input_cfg['output_path']
-    train_cfg['clfs'] = []
+    train_cfg['clfs_path'] = []
+    train_cfg['cols'] = cfg['feature_selection']['categorical_features']['cols'] \
+                        + cfg['feature_selection']['numerical_features']['cols']
     # run the training for each fold and save the model for each fold
     for fold in range(cv_cfg['num_folds']):
         train_cfg['num_folds'] = fold
-        train_cfg['clfs'].append(train.train(dataframe= train_df_d_copy , train_cfg=train_cfg))
+        train_cfg['clfs_path'].append(train.train(dataframe= train_df_d_copy , train_cfg=train_cfg))
+    # get the updated dict for feature selection
     cfg['training'] = train_cfg
-    # Step 5 Prediction
-    predict_cfg = cfg['predict'] = {}
-
-    predict_cfg['clfs'] = clfs
-    predict_cfg['num_folds'] = cv_cfg['num_folds']
-    predict_cfg['encoders'] = 
-    predict_cfg['output_path'] = input_cfg['output_path']
+    # save the entire train config in the output path
+    # the data from this file will be given as an input to the predict script
+    with open(os.path.join(input_cfg['output_path'],'train_config.yaml'), 'w') as file:
+        yaml.dump(cfg, file) 
     
-    predict.predict(train_df, test_df , predict_cfg)
+    # Step 5 Prediction
+    predict.predict(train_df, test_df , cfg)
     
 if __name__ == "__main__":
     # read/create the config dict for pipeline

@@ -3,7 +3,7 @@ import os
 import joblib
 import pandas as pd
 from sklearn import preprocessing
-from sklearn.feature_selection import chi2  
+from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import SelectKBest
 
@@ -36,7 +36,6 @@ class CategoricalFeatures:
     
     def  select_best(self,dataframe: pd.DataFrame):
         
-        selected_feats = []
         # create a Dataframe only for categorical variables
         # categorical_df = pd.get_dummies(dataframe[self.cat_feats])
         categorical_df = dataframe[self.cat_feats]
@@ -76,6 +75,7 @@ class CategoricalFeatures:
         for feats in self.dataframe_d_copy.columns:
             if feats not in self.cat_feats:
                 self.dataframe_d_copy = self.dataframe_d_copy.drop(feats,axis=1)
+        return self.cat_feats
                    
     def _label_encoding(self):
         for feat in self.cat_feats:

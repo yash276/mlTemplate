@@ -1,7 +1,7 @@
 from . import dispatcher
+import joblib
 import pandas as pd
 from sklearn import metrics
-import joblib
 
 def train(
     dataframe: pd.DataFrame,
@@ -28,7 +28,6 @@ def train(
     # fetch the model from the model dispatcher
     clf = dispatcher.models[train_cfg['model']]
     
-    
     #fit the model on the training data
     clf.fit(x_train,y_train)
     
@@ -40,7 +39,7 @@ def train(
     # print the auc score
     print(f"Fold={fold}, AUC SCORE={auc}") 
     # save the model along with fold number
-    joblib.dump(clf,f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}.pkl")
-    joblib.dump(train_df.columns,f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}_columns.pkl")
+    clf_path = f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}.pkl"
+    joblib.dump(clf,clf_path)
     
-    return clf
+    return clf_path

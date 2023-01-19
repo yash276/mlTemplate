@@ -32,7 +32,8 @@ def pipeline(cfg : dict):
     feature_select = feature_selection.FeatureSelection(
         train_df= train_df_d_copy,
         test_df= test_df_d_copy,
-        feature_selection_cfg= feature_selection_cfg
+        feature_selection_cfg= feature_selection_cfg,
+        train=True
     )
     train_df_d_copy,  test_df_d_copy = feature_select.get_df()
     # get the updated dict for feature selection
@@ -67,7 +68,7 @@ def pipeline(cfg : dict):
         yaml.dump(cfg, file) 
     
     # Step 5 Prediction
-    predict.predict(train_df, test_df , cfg)
+    predict.predict(test_df , cfg)
     
 if __name__ == "__main__":
     # read/create the config dict for pipeline

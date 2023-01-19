@@ -5,20 +5,26 @@ import pandas as pd
 class FeatureSelection:
     def __init__(self,
                  train_df: pd.DataFrame,
-                 test_df: pd.DataFrame,
-                 feature_selection_cfg : dict
+                 feature_selection_cfg : dict,
+                 train: bool,
+                 test_df=None
                  ) -> None:
+        
+        self.train = train
         # extract the datasets and create a full dataset
         self.train_df = train_df
         self.train_df = self.train_df.drop(feature_selection_cfg['cols_to_drop'],axis=1)
         
-        self.test_df = test_df
-        self.test_df = self.test_df.drop(feature_selection_cfg['cols_to_drop'],axis=1)
-        # get the length of the training data
-        # it will be usefull to seperate the training and test data later on 
-        self.train_len = len(self.train_df)
         # Drop the target column from train.
-        temp_train_df = self.train_df.drop(feature_selection_cfg['target_cols'],axis=1)
+        temp_train_df = self.train_df
+        
+        if self.train:
+            temp_train_df = self.train_df.drop(feature_selection_cfg['target_cols'],axis=1)
+            self.test_df = test_df
+            self.test_df = self.test_df.drop(feature_selection_cfg['cols_to_drop'],axis=1)
+            # get the length of the training data
+            # it will be usefull to seperate the training and test data later on 
+            self.train_len = len(self.train_df)
         
         # extract categorical and numerical features config
         self.feature_select_cfg = feature_selection_cfg
@@ -42,11 +48,14 @@ class FeatureSelection:
             self.num_feats_cfg['cols'] = [cname for cname in temp_train_df.columns if 
                                     temp_train_df[cname].dtype in ['int64', 'float64']]
         
-        
-        # after getting both the numerical and catergorical features
-        # create an concatenated data from train and test data
-        # drop all the other columns not present in categorical and numerical lists
-        self.full_dataframe = pd.concat([temp_train_df, self.test_df]).reset_index(drop=True)
+        if self.train:
+            # after getting both the numerical and catergorical features
+            # create an concatenated data from train and test data
+            # drop all the other columns not present in categorical and numerical lists
+            self.full_dataframe = pd.concat([temp_train_df, self.test_df]).reset_index(drop=True)
+        else:
+            self.full_dataframe = temp_train_df
+            
         for feats in temp_train_df:
             if feats not in self.cat_feats_cfg['cols'] and feats not in self.num_feats_cfg['cols']:
                 self.full_dataframe = self.full_dataframe.drop(feats,axis=1)
@@ -62,11 +71,12 @@ class FeatureSelection:
             num_feats_cfg= self.num_feats_cfg
         )
         
-         # Run run_tests and select_best according to config
-        if feature_selection_cfg['run_tests']:
-            self.run_tests()
-        if feature_selection_cfg['select_best']:
-            self.select_best()
+        if self.train:
+                # Run run_tests and select_best according to config
+            if feature_selection_cfg['run_tests']:
+                self.run_tests()
+            if feature_selection_cfg['select_best']:
+                self.select_best()
     
     def run_tests(self):
         # perform and produce results for some tests
@@ -82,21 +92,25 @@ class FeatureSelection:
         full_cats_df = self.cat_feats.fit_transform()
         full_num_df = self.num_feats.fit_transform()
         
-        # get the training data from both catergorical and numerical dataframe
-        # combine them to create a single training dataframe
-        train_cats_df = full_cats_df.iloc[:self.train_len , :]
-        train_num_df = full_num_df.iloc[:self.train_len , :]
-        train_df = pd.concat([train_cats_df,train_num_df],axis=1)
-        
-        # Perform the same operation for the test data
-        test_cats_df = full_cats_df.iloc[self.train_len: , :]
-        test_num_df = full_num_df.iloc[self.train_len: , :]
-        test_df = pd.concat([test_cats_df,test_num_df],axis=1)
-        
-        # add the target column back to the train df
-        train_df[self.cat_feats_cfg['target_cols']] = self.train_df[self.cat_feats_cfg['target_cols']].values.tolist()
-        
-        return train_df , test_df
+        if self.train:
+            # get the training data from both catergorical and numerical dataframe
+            # combine them to create a single training dataframe
+            train_cats_df = full_cats_df.iloc[:self.train_len , :]
+            train_num_df = full_num_df.iloc[:self.train_len , :]
+            train_df = pd.concat([train_cats_df,train_num_df],axis=1)
+            
+            # Perform the same operation for the test data
+            test_cats_df = full_cats_df.iloc[self.train_len: , :]
+            test_num_df = full_num_df.iloc[self.train_len: , :]
+            test_df = pd.concat([test_cats_df,test_num_df],axis=1)
+            
+            # add the target column back to the train df
+            train_df[self.cat_feats_cfg['target_cols']] = self.train_df[self.cat_feats_cfg['target_cols']].values.tolist()
+            
+            return train_df , test_df
+        else:
+            train_df = pd.concat([full_cats_df,full_num_df],axis=1)
+            return train_df
     
     def get_config(self):
         return self.feature_select_cfg

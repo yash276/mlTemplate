@@ -16,13 +16,10 @@ def train(
     
     # drop the kfold and target column    
     # convert it into a numpy array
-    x_train = train_df.drop(['kfold'],axis=1).values
-    x_train = train_df.drop(train_cfg['target_cols'],axis=1).values
+    x_train = train_df.drop(['kfold'] + train_cfg['target_cols'],axis=1).values
     y_train = train_df[train_cfg['target_cols']].values
-    
     # perform the same for validation
-    x_val = val_df.drop(['kfold'],axis=1).values
-    x_val = val_df.drop(train_cfg['target_cols'],axis=1).values
+    x_val = val_df.drop(['kfold'] + train_cfg['target_cols'],axis=1).values
     y_val = val_df[train_cfg['target_cols']].values
     
     # fetch the model from the model dispatcher

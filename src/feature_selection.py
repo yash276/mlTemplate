@@ -63,12 +63,14 @@ class FeatureSelection:
         # create the categorical class constructor
         self.cat_feats = categorical_features.CategoricalFeatures(
             dataframe = self.full_dataframe[self.cat_feats_cfg['cols']],
-            cat_feats_cfg = self.cat_feats_cfg 
+            cat_feats_cfg = self.cat_feats_cfg,
+            train = self.train
         )
         # create the numnerical class constructor
         self.num_feats = numerical_features.NumericalFeatures(
             dataframe= self.full_dataframe[self.num_feats_cfg['cols']],
-            num_feats_cfg= self.num_feats_cfg
+            num_feats_cfg= self.num_feats_cfg,
+            train = self.train
         )
         
         if self.train:
@@ -113,4 +115,5 @@ class FeatureSelection:
             return train_df
     
     def get_config(self):
+        self.feature_select_cfg['categorical_features'] = self.cat_feats_cfg = self.cat_feats.get_config()
         return self.feature_select_cfg

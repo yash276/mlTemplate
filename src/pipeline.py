@@ -56,6 +56,7 @@ def pipeline(cfg : dict):
     train_cfg['clfs_path'] = []
     train_cfg['cols'] = cfg['feature_selection']['categorical_features']['cols'] \
                         + cfg['feature_selection']['numerical_features']['cols']
+    
     # run the training for each fold and save the model for each fold
     for fold in range(cv_cfg['num_folds']):
         train_cfg['num_folds'] = fold

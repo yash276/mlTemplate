@@ -1,8 +1,9 @@
 from . import utils
 import os
+import joblib
 import pandas as pd
 from sklearn import preprocessing
-from sklearn.feature_selection import chi2  
+from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import SelectKBest
 
@@ -10,10 +11,13 @@ class CategoricalFeatures:
     def __init__(
         self,
         dataframe: pd.DataFrame,
-        cat_feats_cfg: dict
+        cat_feats_cfg: dict,
+        train: bool,
         ):
         # extract dataframe and the config values.
+        self.cat_feats_cfg = cat_feats_cfg
         self.dataframe = dataframe
+        self.train = train
         self.handle_na = cat_feats_cfg['handle_na']
         self.enc_types = cat_feats_cfg['enc_types']
         self.num_best = cat_feats_cfg['num_best']
@@ -21,9 +25,12 @@ class CategoricalFeatures:
         self.target_cols = cat_feats_cfg['target_cols']
         self.output_path = cat_feats_cfg['output_path']
         # create empty dict's for storing encoders for features.
-        self.label_encoders = dict()
-        self.binary_encoders = dict()
-        self.ohe = None
+        if self.train:
+            self.label_encoders = dict()
+            self.binary_encoders = dict()
+            self.ohe = None
+        else:
+            self.encoders = joblib.load(self.cat_feats_cfg['encoder_path'])
         # hanlde NAN values if true.
         if self.handle_na:
             for feat in self.cat_feats:
@@ -35,7 +42,6 @@ class CategoricalFeatures:
     
     def  select_best(self,dataframe: pd.DataFrame):
         
-        selected_feats = []
         # create a Dataframe only for categorical variables
         # categorical_df = pd.get_dummies(dataframe[self.cat_feats])
         categorical_df = dataframe[self.cat_feats]
@@ -75,13 +81,24 @@ class CategoricalFeatures:
         for feats in self.dataframe_d_copy.columns:
             if feats not in self.cat_feats:
                 self.dataframe_d_copy = self.dataframe_d_copy.drop(feats,axis=1)
+        return self.cat_feats
                    
     def _label_encoding(self):
         for feat in self.cat_feats:
-            lbl = preprocessing.LabelEncoder()
-            lbl.fit(self.dataframe[feat].values)
-            self.dataframe_d_copy.loc[:,feat] = lbl.transform(self.dataframe[feat].values)
-            self.label_encoders[feat] = lbl
+            if self.train:
+                lbl = preprocessing.LabelEncoder()
+                lbl.fit(self.dataframe[feat].values)
+                self.dataframe_d_copy.loc[:,feat] = lbl.transform(self.dataframe[feat].values)
+                self.label_encoders[feat] = lbl
+            else:
+                lbl = self.encoders[feat]
+                self.dataframe_d_copy.loc[:,feat] = lbl.transform(self.dataframe[feat].values)
+        
+        if self.train:
+            encoder_path = f"{self.output_path}/_label_encoder.pkl"
+            self.cat_feats_cfg['encoder_path'] = encoder_path
+            joblib.dump(self.label_encoders, encoder_path)
+            
         return self.dataframe_d_copy
     
     def _binarization(self):
@@ -94,8 +111,8 @@ class CategoricalFeatures:
             for j in range(val.shape[1]):
                 new_col_name = feat + f'__bin_{j}'
                 self.dataframe_d_copy[new_col_name] = val[:,j] 
-        self.binary_encoders[feat] = lbl
-        
+            self.binary_encoders[feat] = lbl
+        joblib.dump(self.binary_encoders, f"{self.output_path}/_binary_encoder.pkl")
         return self.dataframe_d_copy
     
     def _one_hot_encoder(self):
@@ -111,7 +128,10 @@ class CategoricalFeatures:
         elif self.enc_types == "binary":
             return self._binarization()
         else:
-            raise Exception("Encoding type not understood")    
+            raise Exception("Encoding type not understood") 
+    
+    def get_config(self):
+        return self.cat_feats_cfg
 
 if __name__ == "__main__":
     import pandas as pd

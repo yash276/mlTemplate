@@ -1,7 +1,7 @@
 from . import dispatcher
+import joblib
 import pandas as pd
 from sklearn import metrics
-import joblib
 
 def train(
     dataframe: pd.DataFrame,
@@ -16,18 +16,14 @@ def train(
     
     # drop the kfold and target column    
     # convert it into a numpy array
-    x_train = train_df.drop(['kfold'],axis=1).values
-    x_train = train_df.drop(train_cfg['target_cols'],axis=1).values
+    x_train = train_df.drop(['kfold'] + train_cfg['target_cols'],axis=1).values
     y_train = train_df[train_cfg['target_cols']].values
-    
     # perform the same for validation
-    x_val = val_df.drop(['kfold'],axis=1).values
-    x_val = val_df.drop(train_cfg['target_cols'],axis=1).values
+    x_val = val_df.drop(['kfold'] + train_cfg['target_cols'],axis=1).values
     y_val = val_df[train_cfg['target_cols']].values
     
     # fetch the model from the model dispatcher
     clf = dispatcher.models[train_cfg['model']]
-    print(type(clf))
     
     #fit the model on the training data
     clf.fit(x_train,y_train)
@@ -40,7 +36,7 @@ def train(
     # print the auc score
     print(f"Fold={fold}, AUC SCORE={auc}") 
     # save the model along with fold number
-    joblib.dump(clf,f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}.pkl")
-    joblib.dump(train_df.columns,f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}_columns.pkl")
+    clf_path = f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}.pkl"
+    joblib.dump(clf,clf_path)
     
-    return clf
+    return clf_path

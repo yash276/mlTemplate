@@ -10,12 +10,13 @@ def eda(input_cfg: dict) -> None :
     The generated report can be shared across and is platform independent.
     
     Args:
-        input_cfg (dict): input dictionary which should have the following format
+        input_cfg (dict): input dictionary which should have the following format.
+            KEEP THE KEY VALUES AS GIVEN BELOW!!!
             input_cfg = {
-                train_file: train csv file path,
-                test_file: test csv file path,
-                validation_file: validation csv file path [ Optional],
-                output_path: path to output directory.
+                train_file(string): train csv file path,
+                test_file(sting): test csv file path,
+                validation_file(string, optional): validation csv file path,
+                output_path(string): path to output directory.
             }
     """
     dataframe = pd.read_csv(input_cfg['train_file'])

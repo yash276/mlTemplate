@@ -8,12 +8,35 @@ from sklearn.feature_selection import f_classif
 from sklearn.feature_selection import SelectKBest
 
 class CategoricalFeatures:
+    """
+    This class if used to perform all things related to Categorical Features.
+    """
     def __init__(
         self,
         dataframe: pd.DataFrame,
         cat_feats_cfg: dict,
         train: bool,
         ):
+        """
+        Extract all the values from the cfg.
+        Initialize the encoders based on the train value.
+        Handle NAN values based on the config value.
+
+        Args:
+            dataframe (pd.DataFrame): The entire dataset for which we want to perform operations.
+            cat_feats_cfg (dict): The dictinoary should have the following fromat
+            KEEP THE KEY VALUES AS GIVEN BELOW!!!
+            categorical_features: {
+                            enc_types(string): 
+                            "label" for Label Encoding
+                            "ohe" for One Hot Encoding
+                            "binary" for Binarization
+                            handle_na(bool): if you want to code to handle the NAN values then True else False.
+                            num_best(int): Number of best features to select if select_best is True.
+                            }
+            train (bool): Whether we want Feature Selection for Training or Prediction:
+                True when called for the Training, False when called for Prediction.
+        """
         # extract dataframe and the config values.
         self.cat_feats_cfg = cat_feats_cfg
         self.dataframe = dataframe
@@ -41,6 +64,16 @@ class CategoricalFeatures:
         pass
     
     def  select_best(self,dataframe: pd.DataFrame):
+        """
+        Applies Chi2 Test to select top num_best features from the Input Dataframe.
+        Stores the Bar Graph int the Output Directory.
+        
+        Args:
+            dataframe (pd.DataFrame): Input Dataframe for which we want to automatically select best featueres
+
+        Returns:
+            list: list of the automatically selected top num_best features from the input dataframe 
+        """
         
         # create a Dataframe only for categorical variables
         # categorical_df = pd.get_dummies(dataframe[self.cat_feats])
@@ -84,6 +117,11 @@ class CategoricalFeatures:
         return self.cat_feats
                    
     def _label_encoding(self):
+        """
+        Performs Label Encoding on the dataframe based on the train value.
+        Returns:
+            pd.DataFrame: the Label Encoded Dataframe
+        """
         for feat in self.cat_feats:
             if self.train:
                 lbl = preprocessing.LabelEncoder()
@@ -102,6 +140,11 @@ class CategoricalFeatures:
         return self.dataframe_d_copy
     
     def _binarization(self):
+        """
+        Performs Binarization on the dataframe based on the train value.
+        Returns:
+            pd.DataFrame: the Binarized Dataframe
+        """
         for feat in self.cat_feats:
             lbl = preprocessing.LabelBinarizer()
             lbl.fit(self.dataframe[feat].values)
@@ -116,11 +159,24 @@ class CategoricalFeatures:
         return self.dataframe_d_copy
     
     def _one_hot_encoder(self):
+        """
+        Performs One Hot Encoding on the dataframe based on the train value.
+        Returns:
+            pd.DataFrame: the One Hot Encoded Dataframe
+        """
         ohe = preprocessing.OneHotEncoder()
         ohe.fit(self.dataframe[self.cat_feats])
         return ohe.transform(self.dataframe_d_copy[self.cat_feats])
     
     def fit_transform(self):
+        """
+        Peforms the type of Transformation baed on the encoder type
+        Raises:
+            Exception: if the encoder type given as an input is UNKNOWN!!
+
+        Returns:
+            pd.DataFrame: The encoded dataframe. The encoding will depend on the encoder type given as an input
+        """
         if self.enc_types == "label":
             return self._label_encoding()
         elif self.enc_types == "ohe":
@@ -131,6 +187,11 @@ class CategoricalFeatures:
             raise Exception("Encoding type not understood") 
     
     def get_config(self):
+        """
+        It returns the current input config that the initialized object is operating on.
+        Returns:
+            dict: the enitre feature selection config
+        """
         return self.cat_feats_cfg
 
 if __name__ == "__main__":

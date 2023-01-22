@@ -26,6 +26,7 @@ def eda(input_cfg: dict) -> None :
     profile.to_file(output_file_path)
 
 if __name__ == "__main__":
+    # Following is an example to show how you can used this a standalone module as well
     input_cfg= {
         "train_file": "input/train.csv",
         "test_file": "input/test.csv",

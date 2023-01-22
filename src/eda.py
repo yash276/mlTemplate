@@ -12,10 +12,10 @@ def eda(input_cfg: dict) -> None :
     Args:
         input_cfg (dict): input dictionary which should have the following format
             input_cfg = {
-                train_file: "input/train.csv",
-                test_file: "",
-                validation_file: "",
-                output_path: "output"
+                train_file: train csv file path,
+                test_file: test csv file path,
+                validation_file: validation csv file path [ Optional],
+                output_path: path to output directory.
             }
     """
     dataframe = pd.read_csv(input_cfg['train_file'])
@@ -25,10 +25,12 @@ def eda(input_cfg: dict) -> None :
     profile.to_file(output_file_path)
 
 if __name__ == "__main__":
-    CONFIG = os.environ.get("CONFIG")
-    with open(CONFIG) as f:
-        cfg = yaml.load(f,Loader=SafeLoader)
-    
-    input_cfg = cfg['input']
+    input_cfg= {
+        "train_file": "input/train.csv",
+        "test_file": "input/test.csv",
+        "target_cols": ["target"],
+        "output_path": "output"
+        }
+
     train_df = pd.read_csv(input_cfg['train_file'])
     eda.eda(dataframe = train_df)

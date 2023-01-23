@@ -22,8 +22,10 @@ class FeatureSelection:
         
         Args:
             train_df (pd.DataFrame): Train Dataframe
+            
             feature_selection_cfg (dict): The dictinoary should have the following fromat
             KEEP THE KEY VALUES AS GIVEN BELOW!!!
+            
             feature_selection: {
                         categorical_features: {
                                         enc_types(string): 
@@ -42,8 +44,10 @@ class FeatureSelection:
                         select_best(bool): If you want the code to decide the best features of the given data then True else False.
 
                 }
+                
             train (bool): Whether we want Feature Selection for Training or Prediction:
                 True when called for the Training, False when called for Prediction. 
+            
             test_df (pd.DataFrame, optional): Test Dataframe. Defaults to None.
         """
         self.train = train
@@ -167,6 +171,7 @@ class FeatureSelection:
     def get_config(self):
         """
         It returns the current input config that the initialized object is operating on.
+        
         Returns:
             dict: the enitre feature selection config
         """

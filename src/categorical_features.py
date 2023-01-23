@@ -24,8 +24,10 @@ class CategoricalFeatures:
 
         Args:
             dataframe (pd.DataFrame): The entire dataset for which we want to perform operations.
+            
             cat_feats_cfg (dict): The dictinoary should have the following fromat
             KEEP THE KEY VALUES AS GIVEN BELOW!!!
+            
             categorical_features: {
                             enc_types(string): 
                             "label" for Label Encoding
@@ -34,6 +36,7 @@ class CategoricalFeatures:
                             handle_na(bool): if you want to code to handle the NAN values then True else False.
                             num_best(int): Number of best features to select if select_best is True.
                             }
+            
             train (bool): Whether we want Feature Selection for Training or Prediction:
                 True when called for the Training, False when called for Prediction.
         """
@@ -119,6 +122,7 @@ class CategoricalFeatures:
     def _label_encoding(self):
         """
         Performs Label Encoding on the dataframe based on the train value.
+        
         Returns:
             pd.DataFrame: the Label Encoded Dataframe
         """
@@ -142,6 +146,7 @@ class CategoricalFeatures:
     def _binarization(self):
         """
         Performs Binarization on the dataframe based on the train value.
+        
         Returns:
             pd.DataFrame: the Binarized Dataframe
         """
@@ -161,6 +166,7 @@ class CategoricalFeatures:
     def _one_hot_encoder(self):
         """
         Performs One Hot Encoding on the dataframe based on the train value.
+        
         Returns:
             pd.DataFrame: the One Hot Encoded Dataframe
         """
@@ -171,6 +177,7 @@ class CategoricalFeatures:
     def fit_transform(self):
         """
         Peforms the type of Transformation baed on the encoder type
+        
         Raises:
             Exception: if the encoder type given as an input is UNKNOWN!!
 
@@ -189,6 +196,7 @@ class CategoricalFeatures:
     def get_config(self):
         """
         It returns the current input config that the initialized object is operating on.
+        
         Returns:
             dict: the enitre feature selection config
         """

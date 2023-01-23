@@ -22,7 +22,7 @@ def pipeline(cfg : dict):
     test_df_d_copy = test_df.copy(deep=True)
     
     # Step 1 Perform The Automatic EDA
-    # eda.eda(input_cfg = input_cfg)
+    eda.eda(input_cfg = input_cfg)
     
     # Step 2 Perform Feature Selection for Categorical and Numerical Features
     feature_selection_cfg = cfg['feature_selection']

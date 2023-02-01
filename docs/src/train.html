@@ -62,40 +62,59 @@
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a>    <span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>    <span class="n">train_cfg</span><span class="p">:</span> <span class="nb">dict</span>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="p">):</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="n">fold</span> <span class="o">=</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;num_folds&#39;</span><span class="p">]</span>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>    <span class="c1"># get the Training and validation data for this fold</span>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="c1"># training data is where the kfold is not equal to the fold</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>    <span class="c1"># validation data is where the kfold is equal to the fold</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="n">train_df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="o">.</span><span class="n">kfold</span> <span class="o">!=</span> <span class="n">fold</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="n">val_df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="o">.</span><span class="n">kfold</span><span class="o">==</span><span class="n">fold</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="c1"># drop the kfold and target column    </span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="c1"># convert it into a numpy array</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">x_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kfold&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="c1"># perform the same for validation</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="n">x_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kfold&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="n">y_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="c1"># fetch the model from the model dispatcher</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">clf</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]]</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="c1">#fit the model on the training data</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="c1"># create probabilities for validation samples</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">preds</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x_val</span><span class="p">)[:,</span><span class="mi">1</span><span class="p">]</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="c1"># get roc auc score</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="n">auc</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span><span class="n">preds</span><span class="p">)</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="c1"># print the auc score</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fold=</span><span class="si">{</span><span class="n">fold</span><span class="si">}</span><span class="s2">, AUC SCORE=</span><span class="si">{</span><span class="n">auc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="c1"># save the model along with fold number</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">clf_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;num_folds&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span><span class="n">clf_path</span><span class="p">)</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">return</span> <span class="n">clf_path</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>    <span class="p">)</span><span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="sd">    The functions takes in Training DataFrame and Train Config.</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="sd">    Split the DataFrame in Train and Validation sets.</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    Trains a model according to config and store it in the output path. </span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    Args:</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">        dataframe (pd.DataFrame): Training DataFrame</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">        train_cfg (dict): The dictinoary should have the following fromat</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">            KEEP THE KEY VALUES AS GIVEN BELOW!!!</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="sd">            </span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">            training: {</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="sd">                model: </span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="sd">                &quot;logistic&quot; for Logistic Regression</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">                &quot;linear&quot; for Liner Regression</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">            }</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">    Returns:</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="sd">        str: the path to the trained classifier.</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="n">fold</span> <span class="o">=</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;num_folds&#39;</span><span class="p">]</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="c1"># get the Training and validation data for this fold</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="c1"># training data is where the kfold is not equal to the fold</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="c1"># validation data is where the kfold is equal to the fold</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="n">train_df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="o">.</span><span class="n">kfold</span> <span class="o">!=</span> <span class="n">fold</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="n">val_df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="o">.</span><span class="n">kfold</span><span class="o">==</span><span class="n">fold</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="c1"># drop the kfold and target column    </span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="c1"># convert it into a numpy array</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">x_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kfold&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="c1"># perform the same for validation</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="n">x_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kfold&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="n">y_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="c1"># fetch the model from the model dispatcher</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="n">clf</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]]</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="c1">#fit the model on the training data</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="c1"># create probabilities for validation samples</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="n">preds</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x_val</span><span class="p">)[:,</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="c1"># get roc auc score</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="n">auc</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span><span class="n">preds</span><span class="p">)</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="c1"># print the auc score</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fold=</span><span class="si">{</span><span class="n">fold</span><span class="si">}</span><span class="s2">, AUC SCORE=</span><span class="si">{</span><span class="n">auc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="c1"># save the model along with fold number</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="n">clf_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;num_folds&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span><span class="n">clf_path</span><span class="p">)</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="k">return</span> <span class="n">clf_path</span>
 </span></pre></div>
 
 
@@ -105,7 +124,7 @@
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">train</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">dataframe</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>, </span><span class="param"><span class="n">train_cfg</span><span class="p">:</span> <span class="nb">dict</span></span><span class="return-annotation">):</span></span>
+        <span class="name">train</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">dataframe</span><span class="p">:</span> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>, </span><span class="param"><span class="n">train_cfg</span><span class="p">:</span> <span class="nb">dict</span></span><span class="return-annotation">) -> <span class="nb">str</span>:</span></span>
 
                 <label class="view-source-button" for="train-view-source"><span>View Source</span></label>
 
@@ -114,44 +133,82 @@
             <div class="pdoc-code codehilite"><pre><span></span><span id="train-7"><a href="#train-7"><span class="linenos"> 7</span></a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
 </span><span id="train-8"><a href="#train-8"><span class="linenos"> 8</span></a>    <span class="n">dataframe</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 </span><span id="train-9"><a href="#train-9"><span class="linenos"> 9</span></a>    <span class="n">train_cfg</span><span class="p">:</span> <span class="nb">dict</span>
-</span><span id="train-10"><a href="#train-10"><span class="linenos">10</span></a>    <span class="p">):</span>
-</span><span id="train-11"><a href="#train-11"><span class="linenos">11</span></a>    <span class="n">fold</span> <span class="o">=</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;num_folds&#39;</span><span class="p">]</span>
-</span><span id="train-12"><a href="#train-12"><span class="linenos">12</span></a>    <span class="c1"># get the Training and validation data for this fold</span>
-</span><span id="train-13"><a href="#train-13"><span class="linenos">13</span></a>    <span class="c1"># training data is where the kfold is not equal to the fold</span>
-</span><span id="train-14"><a href="#train-14"><span class="linenos">14</span></a>    <span class="c1"># validation data is where the kfold is equal to the fold</span>
-</span><span id="train-15"><a href="#train-15"><span class="linenos">15</span></a>    <span class="n">train_df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="o">.</span><span class="n">kfold</span> <span class="o">!=</span> <span class="n">fold</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="train-16"><a href="#train-16"><span class="linenos">16</span></a>    <span class="n">val_df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="o">.</span><span class="n">kfold</span><span class="o">==</span><span class="n">fold</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="train-17"><a href="#train-17"><span class="linenos">17</span></a>    
-</span><span id="train-18"><a href="#train-18"><span class="linenos">18</span></a>    <span class="c1"># drop the kfold and target column    </span>
-</span><span id="train-19"><a href="#train-19"><span class="linenos">19</span></a>    <span class="c1"># convert it into a numpy array</span>
-</span><span id="train-20"><a href="#train-20"><span class="linenos">20</span></a>    <span class="n">x_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kfold&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-</span><span id="train-21"><a href="#train-21"><span class="linenos">21</span></a>    <span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
-</span><span id="train-22"><a href="#train-22"><span class="linenos">22</span></a>    <span class="c1"># perform the same for validation</span>
-</span><span id="train-23"><a href="#train-23"><span class="linenos">23</span></a>    <span class="n">x_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kfold&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-</span><span id="train-24"><a href="#train-24"><span class="linenos">24</span></a>    <span class="n">y_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
-</span><span id="train-25"><a href="#train-25"><span class="linenos">25</span></a>    
-</span><span id="train-26"><a href="#train-26"><span class="linenos">26</span></a>    <span class="c1"># fetch the model from the model dispatcher</span>
-</span><span id="train-27"><a href="#train-27"><span class="linenos">27</span></a>    <span class="n">clf</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]]</span>
-</span><span id="train-28"><a href="#train-28"><span class="linenos">28</span></a>    
-</span><span id="train-29"><a href="#train-29"><span class="linenos">29</span></a>    <span class="c1">#fit the model on the training data</span>
-</span><span id="train-30"><a href="#train-30"><span class="linenos">30</span></a>    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
-</span><span id="train-31"><a href="#train-31"><span class="linenos">31</span></a>    
-</span><span id="train-32"><a href="#train-32"><span class="linenos">32</span></a>    <span class="c1"># create probabilities for validation samples</span>
-</span><span id="train-33"><a href="#train-33"><span class="linenos">33</span></a>    <span class="n">preds</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x_val</span><span class="p">)[:,</span><span class="mi">1</span><span class="p">]</span>
-</span><span id="train-34"><a href="#train-34"><span class="linenos">34</span></a>
-</span><span id="train-35"><a href="#train-35"><span class="linenos">35</span></a>    <span class="c1"># get roc auc score</span>
-</span><span id="train-36"><a href="#train-36"><span class="linenos">36</span></a>    <span class="n">auc</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span><span class="n">preds</span><span class="p">)</span>
-</span><span id="train-37"><a href="#train-37"><span class="linenos">37</span></a>    <span class="c1"># print the auc score</span>
-</span><span id="train-38"><a href="#train-38"><span class="linenos">38</span></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fold=</span><span class="si">{</span><span class="n">fold</span><span class="si">}</span><span class="s2">, AUC SCORE=</span><span class="si">{</span><span class="n">auc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
-</span><span id="train-39"><a href="#train-39"><span class="linenos">39</span></a>    <span class="c1"># save the model along with fold number</span>
-</span><span id="train-40"><a href="#train-40"><span class="linenos">40</span></a>    <span class="n">clf_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;num_folds&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
-</span><span id="train-41"><a href="#train-41"><span class="linenos">41</span></a>    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span><span class="n">clf_path</span><span class="p">)</span>
-</span><span id="train-42"><a href="#train-42"><span class="linenos">42</span></a>    
-</span><span id="train-43"><a href="#train-43"><span class="linenos">43</span></a>    <span class="k">return</span> <span class="n">clf_path</span>
+</span><span id="train-10"><a href="#train-10"><span class="linenos">10</span></a>    <span class="p">)</span><span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="train-11"><a href="#train-11"><span class="linenos">11</span></a>    <span class="sd">&quot;&quot;&quot;</span>
+</span><span id="train-12"><a href="#train-12"><span class="linenos">12</span></a><span class="sd">    The functions takes in Training DataFrame and Train Config.</span>
+</span><span id="train-13"><a href="#train-13"><span class="linenos">13</span></a><span class="sd">    Split the DataFrame in Train and Validation sets.</span>
+</span><span id="train-14"><a href="#train-14"><span class="linenos">14</span></a><span class="sd">    Trains a model according to config and store it in the output path. </span>
+</span><span id="train-15"><a href="#train-15"><span class="linenos">15</span></a>
+</span><span id="train-16"><a href="#train-16"><span class="linenos">16</span></a><span class="sd">    Args:</span>
+</span><span id="train-17"><a href="#train-17"><span class="linenos">17</span></a><span class="sd">        dataframe (pd.DataFrame): Training DataFrame</span>
+</span><span id="train-18"><a href="#train-18"><span class="linenos">18</span></a><span class="sd">        train_cfg (dict): The dictinoary should have the following fromat</span>
+</span><span id="train-19"><a href="#train-19"><span class="linenos">19</span></a><span class="sd">            KEEP THE KEY VALUES AS GIVEN BELOW!!!</span>
+</span><span id="train-20"><a href="#train-20"><span class="linenos">20</span></a><span class="sd">            </span>
+</span><span id="train-21"><a href="#train-21"><span class="linenos">21</span></a><span class="sd">            training: {</span>
+</span><span id="train-22"><a href="#train-22"><span class="linenos">22</span></a><span class="sd">                model: </span>
+</span><span id="train-23"><a href="#train-23"><span class="linenos">23</span></a><span class="sd">                &quot;logistic&quot; for Logistic Regression</span>
+</span><span id="train-24"><a href="#train-24"><span class="linenos">24</span></a><span class="sd">                &quot;linear&quot; for Liner Regression</span>
+</span><span id="train-25"><a href="#train-25"><span class="linenos">25</span></a><span class="sd">            }</span>
+</span><span id="train-26"><a href="#train-26"><span class="linenos">26</span></a>
+</span><span id="train-27"><a href="#train-27"><span class="linenos">27</span></a><span class="sd">    Returns:</span>
+</span><span id="train-28"><a href="#train-28"><span class="linenos">28</span></a><span class="sd">        str: the path to the trained classifier.</span>
+</span><span id="train-29"><a href="#train-29"><span class="linenos">29</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="train-30"><a href="#train-30"><span class="linenos">30</span></a>    <span class="n">fold</span> <span class="o">=</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;num_folds&#39;</span><span class="p">]</span>
+</span><span id="train-31"><a href="#train-31"><span class="linenos">31</span></a>    <span class="c1"># get the Training and validation data for this fold</span>
+</span><span id="train-32"><a href="#train-32"><span class="linenos">32</span></a>    <span class="c1"># training data is where the kfold is not equal to the fold</span>
+</span><span id="train-33"><a href="#train-33"><span class="linenos">33</span></a>    <span class="c1"># validation data is where the kfold is equal to the fold</span>
+</span><span id="train-34"><a href="#train-34"><span class="linenos">34</span></a>    <span class="n">train_df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="o">.</span><span class="n">kfold</span> <span class="o">!=</span> <span class="n">fold</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="train-35"><a href="#train-35"><span class="linenos">35</span></a>    <span class="n">val_df</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="o">.</span><span class="n">kfold</span><span class="o">==</span><span class="n">fold</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="train-36"><a href="#train-36"><span class="linenos">36</span></a>    
+</span><span id="train-37"><a href="#train-37"><span class="linenos">37</span></a>    <span class="c1"># drop the kfold and target column    </span>
+</span><span id="train-38"><a href="#train-38"><span class="linenos">38</span></a>    <span class="c1"># convert it into a numpy array</span>
+</span><span id="train-39"><a href="#train-39"><span class="linenos">39</span></a>    <span class="n">x_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kfold&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+</span><span id="train-40"><a href="#train-40"><span class="linenos">40</span></a>    <span class="n">y_train</span> <span class="o">=</span> <span class="n">train_df</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+</span><span id="train-41"><a href="#train-41"><span class="linenos">41</span></a>    <span class="c1"># perform the same for validation</span>
+</span><span id="train-42"><a href="#train-42"><span class="linenos">42</span></a>    <span class="n">x_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;kfold&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+</span><span id="train-43"><a href="#train-43"><span class="linenos">43</span></a>    <span class="n">y_val</span> <span class="o">=</span> <span class="n">val_df</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;target_cols&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">values</span>
+</span><span id="train-44"><a href="#train-44"><span class="linenos">44</span></a>    
+</span><span id="train-45"><a href="#train-45"><span class="linenos">45</span></a>    <span class="c1"># fetch the model from the model dispatcher</span>
+</span><span id="train-46"><a href="#train-46"><span class="linenos">46</span></a>    <span class="n">clf</span> <span class="o">=</span> <span class="n">dispatcher</span><span class="o">.</span><span class="n">models</span><span class="p">[</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]]</span>
+</span><span id="train-47"><a href="#train-47"><span class="linenos">47</span></a>    
+</span><span id="train-48"><a href="#train-48"><span class="linenos">48</span></a>    <span class="c1">#fit the model on the training data</span>
+</span><span id="train-49"><a href="#train-49"><span class="linenos">49</span></a>    <span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+</span><span id="train-50"><a href="#train-50"><span class="linenos">50</span></a>    
+</span><span id="train-51"><a href="#train-51"><span class="linenos">51</span></a>    <span class="c1"># create probabilities for validation samples</span>
+</span><span id="train-52"><a href="#train-52"><span class="linenos">52</span></a>    <span class="n">preds</span> <span class="o">=</span> <span class="n">clf</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">x_val</span><span class="p">)[:,</span><span class="mi">1</span><span class="p">]</span>
+</span><span id="train-53"><a href="#train-53"><span class="linenos">53</span></a>
+</span><span id="train-54"><a href="#train-54"><span class="linenos">54</span></a>    <span class="c1"># get roc auc score</span>
+</span><span id="train-55"><a href="#train-55"><span class="linenos">55</span></a>    <span class="n">auc</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_val</span><span class="p">,</span><span class="n">preds</span><span class="p">)</span>
+</span><span id="train-56"><a href="#train-56"><span class="linenos">56</span></a>    <span class="c1"># print the auc score</span>
+</span><span id="train-57"><a href="#train-57"><span class="linenos">57</span></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fold=</span><span class="si">{</span><span class="n">fold</span><span class="si">}</span><span class="s2">, AUC SCORE=</span><span class="si">{</span><span class="n">auc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
+</span><span id="train-58"><a href="#train-58"><span class="linenos">58</span></a>    <span class="c1"># save the model along with fold number</span>
+</span><span id="train-59"><a href="#train-59"><span class="linenos">59</span></a>    <span class="n">clf_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;output_path&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">train_cfg</span><span class="p">[</span><span class="s1">&#39;num_folds&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
+</span><span id="train-60"><a href="#train-60"><span class="linenos">60</span></a>    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">clf</span><span class="p">,</span><span class="n">clf_path</span><span class="p">)</span>
+</span><span id="train-61"><a href="#train-61"><span class="linenos">61</span></a>    
+</span><span id="train-62"><a href="#train-62"><span class="linenos">62</span></a>    <span class="k">return</span> <span class="n">clf_path</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>The functions takes in Training DataFrame and Train Config.
+Split the DataFrame in Train and Validation sets.
+Trains a model according to config and store it in the output path. </p>
+
+<p>Args:
+    dataframe (pd.DataFrame): Training DataFrame
+    train_cfg (dict): The dictinoary should have the following fromat
+        KEEP THE KEY VALUES AS GIVEN BELOW!!!</p>
+
+<pre><code>    training: {
+        model: 
+        "logistic" for Logistic Regression
+        "linear" for Liner Regression
+    }
+</code></pre>
+
+<p>Returns:
+    str: the path to the trained classifier.</p>
+</div>
+
 
                 </section>
     </main>

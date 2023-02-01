@@ -6,7 +6,26 @@ from sklearn import metrics
 def train(
     dataframe: pd.DataFrame,
     train_cfg: dict
-    ):
+    )-> str:
+    """
+    The functions takes in Training DataFrame and Train Config.
+    Split the DataFrame in Train and Validation sets.
+    Trains a model according to config and store it in the output path. 
+
+    Args:
+        dataframe (pd.DataFrame): Training DataFrame
+        train_cfg (dict): The dictinoary should have the following fromat
+            KEEP THE KEY VALUES AS GIVEN BELOW!!!
+            
+            training: {
+                model: 
+                "logistic" for Logistic Regression
+                "linear" for Liner Regression
+            }
+
+    Returns:
+        str: the path to the trained classifier.
+    """
     fold = train_cfg['num_folds']
     # get the Training and validation data for this fold
     # training data is where the kfold is not equal to the fold

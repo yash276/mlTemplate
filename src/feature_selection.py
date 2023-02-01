@@ -3,13 +3,53 @@ from . import numerical_features
 import pandas as pd
 
 class FeatureSelection:
+    """
+    This class is used for doing Feataure Selection for both Categorical and 
+    Numerical Features based on the Config Input
+    """
     def __init__(self,
                  train_df: pd.DataFrame,
                  feature_selection_cfg : dict,
                  train: bool,
                  test_df=None
                  ) -> None:
+        """
+        Drops the columns as given in config cols_to_drop.
+        Gathers all the config values for categorical and numerical features.
+        Makes a list of Categorical and Numerical Features based on dtype if the values are not given in config.
+        Initializes the Caategorical and Numerical Feature Class object.
+        Run Test and Select Best based on the config Input
         
+        Args:
+            train_df (pd.DataFrame): Train Dataframe
+            
+            feature_selection_cfg (dict): The dictinoary should have the following fromat
+            KEEP THE KEY VALUES AS GIVEN BELOW!!!
+            
+            feature_selection: {
+                        categorical_features: {
+                                        enc_types(string): 
+                                        "label" for Label Encoding
+                                        "ohe" for One Hot Encoding
+                                        "binary" for Binarization
+                                        handle_na(bool): if you want to code to handle the NAN values then True else False.
+                                        num_best(int): Number of best features to select if select_best is True.
+                                        },
+                        numerical_features: {
+
+                                    },
+                        cols_to_drop(list): List of the columns that you are sure you would drop them from the database.
+                        They can be both Categorical and Numerical Columns.
+                        run_tests(bool): If you want to run and see the various results for The Faetures then True else False.
+                        select_best(bool): If you want the code to decide the best features of the given data then True else False.
+
+                }
+                
+            train (bool): Whether we want Feature Selection for Training or Prediction:
+                True when called for the Training, False when called for Prediction. 
+            
+            test_df (pd.DataFrame, optional): Test Dataframe. Defaults to None.
+        """
         self.train = train
         # extract the datasets and create a full dataset
         self.train_df = train_df
@@ -81,14 +121,28 @@ class FeatureSelection:
                 self.select_best()
     
     def run_tests(self):
+        """
+        Run all the Categorical and Numerical Features Test and store the Output
+        """
         # perform and produce results for some tests
         self.cat_feats.chi2_test(self.train_df)
     
     def select_best(self):
+        """
+        Automatically select what are the best Categorical and Numerical Features
+        """
         # select the best features 
         self.feature_select_cfg['categorical_features']['cols'] = self.cat_feats_cfg['cols'] = self.cat_feats.select_best(self.train_df)
     
     def get_df(self):
+        """
+        Returns the DataFrame after performing the appropriate Feature Selection.
+
+        Returns:
+            pd.DataFrame: The number of returns will depend on the train value provide while initialization.
+            If train was true then it returns train and test dataframes which will be used for training.
+            If tain was false it will return a single dataframe which willl be used for prediction.
+        """
         # beforing sending the dataframe make sure to perform transformation on the data
         # to make it ready for the training
         full_cats_df = self.cat_feats.fit_transform()
@@ -115,5 +169,41 @@ class FeatureSelection:
             return train_df
     
     def get_config(self):
+        """
+        It returns the current input config that the initialized object is operating on.
+        
+        Returns:
+            dict: the enitre feature selection config
+        """
         self.feature_select_cfg['categorical_features'] = self.cat_feats_cfg = self.cat_feats.get_config()
         return self.feature_select_cfg
+    
+if __name__ == "__main__":
+    # Following is an example to show how you can used this a standalone module as well
+    train_df = pd.read_csv("input/train.csv")
+    test_df = pd.read_csv("input/test.csv")
+    
+    feature_selection_cfg = {
+        "categorical_features": {
+                        "enc_types": "label",
+                        "handle_na": True,
+                        "num_best": 5,
+                        },
+        "numerical_features": {
+
+                    },
+        "cols_to_drop": ['id'],
+        "run_tests": True,
+        "select_best": True
+
+}
+    
+    feature_selection_cfg['target_cols'] = ["target"]
+    feature_selection_cfg['output_path'] = "output"
+    feature_select = FeatureSelection(
+        train_df= train_df,
+        test_df= test_df,
+        feature_selection_cfg= feature_selection_cfg,
+        train=True
+    )
+    train_df_d_copy,  test_df_d_copy = feature_select.get_df()

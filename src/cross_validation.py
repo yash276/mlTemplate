@@ -1,12 +1,35 @@
 import pandas as pd
 from sklearn import model_selection
 class CrossValidation:
-    
+    """
+    This class is responsible for performing Cross-Validation of the Training Data 
+    based on the input provided in the Config
+    """
     def __init__(self,
                  dataframe: pd.DataFrame, 
                  cv_cfg: dict
                  ):
-        
+        """
+
+        Args:
+            dataframe (pd.DataFrame): Input DataFrame on which the cross validation is to be performed
+            
+            cv_cfg (dict): The dictinoary should have the following fromat
+            KEEP THE KEY VALUES AS GIVEN BELOW!!!
+            
+            cross_validation: {
+                problem_type(string): supported
+                "binary_classification",
+                "multiclass_classification",
+                "single_column_regression",
+                "multi_column_regression",
+                "multilabel_classification"
+                multilabel_delimiter(string, optional): the character that seperates your multilabel in the input data,
+                shuffle(bool, optional): if you want to shuffle the input data,
+                num_folds(int, optional): num of folds you want yo split the input data,
+                random_state(int, optional): random state you want to shuffle the data
+                }
+        """
         self.dataframe = dataframe
         self.cv_cfg = cv_cfg
         self.target_cols = cv_cfg['target_cols']
@@ -44,11 +67,15 @@ class CrossValidation:
         Raises:
             Exception: Invalid number of target for binary_classification and 
             multiclass_classification problem type
+            
             Exception: Only one unique value found in Target for binary_classification and 
             multiclass_classification problem type
+            
             Exception: Invalid number of target for single_column_regression and 
             multi_column_regression problem type
+            
             Exception: Invalid number of target for multilabel_classification problem type
+            
             Exception: Funnny problem type not Understood
 
         Returns:
@@ -101,4 +128,10 @@ class CrossValidation:
         return self.dataframe
     
     def get_config(self):
+        """
+        It returns the current input config that the initialized object is operating on.
+        
+        Returns:
+            dict: the enitre feature selection config
+        """
         return self.cv_cfg

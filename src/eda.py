@@ -10,12 +10,14 @@ def eda(input_cfg: dict) -> None :
     The generated report can be shared across and is platform independent.
     
     Args:
-        input_cfg (dict): input dictionary which should have the following format
+        input_cfg (dict): input dictionary which should have the following format.
+            KEEP THE KEY VALUES AS GIVEN BELOW!!!
+            
             input_cfg = {
-                train_file: "input/train.csv",
-                test_file: "",
-                validation_file: "",
-                output_path: "output"
+                train_file(string): train csv file path,
+                test_file(sting): test csv file path,
+                validation_file(string, optional): validation csv file path,
+                output_path(string): path to output directory.
             }
     """
     dataframe = pd.read_csv(input_cfg['train_file'])
@@ -25,10 +27,13 @@ def eda(input_cfg: dict) -> None :
     profile.to_file(output_file_path)
 
 if __name__ == "__main__":
-    CONFIG = os.environ.get("CONFIG")
-    with open(CONFIG) as f:
-        cfg = yaml.load(f,Loader=SafeLoader)
-    
-    input_cfg = cfg['input']
+    # Following is an example to show how you can used this a standalone module as well
+    input_cfg= {
+        "train_file": "input/train.csv",
+        "test_file": "input/test.csv",
+        "target_cols": ["target"],
+        "output_path": "output"
+        }
+
     train_df = pd.read_csv(input_cfg['train_file'])
     eda.eda(dataframe = train_df)

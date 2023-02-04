@@ -8,6 +8,7 @@ from . import feature_selection
 # import python libraries
 import os
 import yaml
+import mlflow
 import pandas as pd
 from yaml.loader import SafeLoader
 
@@ -57,17 +58,32 @@ def pipeline(cfg : dict):
     train_cfg['cols'] = cfg['feature_selection']['categorical_features']['cols'] \
                         + cfg['feature_selection']['numerical_features']['cols']
     
-    # run the training for each fold and save the model for each fold
-    for fold in range(cv_cfg['num_folds']):
-        train_cfg['num_folds'] = fold
-        train_cfg['clfs_path'].append(train.train(dataframe= train_df_d_copy , train_cfg=train_cfg))
-    # get the updated dict for feature selection
-    cfg['training'] = train_cfg
-    # save the entire train config in the output path
-    # the data from this file will be given as an input to the predict script
-    with open(os.path.join(input_cfg['output_path'],'train_config.yaml'), 'w') as file:
-        yaml.dump(cfg, file) 
-    
+    # get the all the details for mlflow
+    # if experiment exists get the experiment id
+    # else create a new experiment and get the id
+    if cfg['ml_flow']['experiment_exist']:
+        experiment = mlflow.get_experiment_by_name(cfg['ml_flow']['experiment_name'])
+        experiment_id = experiment.experiment_id
+    else:
+        experiment_id = mlflow.create_experiment(cfg['ml_flow']['experiment_name'])
+        
+    with mlflow.start_run(run_name=cfg['ml_flow']['run_name'],
+                          experiment_id=experiment_id):
+        # run the training for each fold and save the model for each fold
+        for fold in range(cv_cfg['num_folds']):
+            train_cfg['num_folds'] = fold
+            clf , clf_path = train.train(dataframe= train_df_d_copy , train_cfg=train_cfg)
+            model_name = f"{cfg['ml_flow']['experiment_name']}_{train_cfg['model']}_{train_cfg['num_folds']}"
+            mlflow.sklearn.log_model(clf, model_name , registered_model_name= model_name)
+            train_cfg['clfs_path'].append(clf_path)
+            # TODO : Think how to log model parameters and metrics.
+        # get the updated dict for feature selection
+        cfg['training'] = train_cfg
+        # save the entire train config in the output path
+        # the data from this file will be given as an input to the predict script
+        with open(os.path.join(input_cfg['output_path'],'train_config.yaml'), 'w') as file:
+            yaml.dump(cfg, file) 
+        mlflow.log_artifacts(input_cfg['output_path'])
     # Step 5 Prediction
     predict.predict(test_df , cfg)
     

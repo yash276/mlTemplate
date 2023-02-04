@@ -148,3 +148,6 @@ output/
 *.h5
 *.pth
 *.pkl
+
+# mlflow runs
+mlruns/

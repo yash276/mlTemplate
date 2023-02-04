@@ -6,7 +6,7 @@ from sklearn import metrics
 def train(
     dataframe: pd.DataFrame,
     train_cfg: dict
-    )-> str:
+    ):
     """
     The functions takes in Training DataFrame and Train Config.
     Split the DataFrame in Train and Validation sets.
@@ -58,4 +58,4 @@ def train(
     clf_path = f"{train_cfg['output_path']}/{train_cfg['model']}_{train_cfg['num_folds']}.pkl"
     joblib.dump(clf,clf_path)
     
-    return clf_path
+    return clf, clf_path

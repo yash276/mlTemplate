@@ -28,3 +28,9 @@ cross_validation: {
 training: {
         model: "logistic"
 }
+ml_flow: {
+        experiment_name: "PipeLine_Testing",
+        experiment_exist: False,
+        tracking_uri: "",
+        run_name: "1st_Run"
+}

@@ -150,4 +150,4 @@ For any references you can check out the links below for this profile.
 Please keep in mind there are lot of things that are still need to done and testing needs to be done on a lot of use cases. But unfortunately my time to this project is limited. So a lot time the code might break or crash or give unwanted results. I would appreciate is you can raise an [Issue](https://github.com/yash276/mlTemplate/issues) for the same.
 
 ### Also I am currently looking for Collaborators to work on this together. So if anyone interested DM me.
-### If you like the Repo I would appreciate if you could leave a Star :)d
+### If you like the Repo I would appreciate if you could leave a Star :)

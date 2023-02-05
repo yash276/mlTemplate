@@ -136,6 +136,13 @@ Run the following
 
 Sit Back Enjoy :) 
 
+# Example Video
+
+This is the best video that github allowed me to upload hope it helps...
+
+https://user-images.githubusercontent.com/29867809/216824604-6844b275-b329-4c87-a43c-c8c6d5ba910e.mov
+
+
 
 ## Full disclousre 
 The Base code is taken from Abhishek Takhur a Kaggle GrandMaster. This code can be found on this youtube tutorials and on his github profile as well, as well in his book.

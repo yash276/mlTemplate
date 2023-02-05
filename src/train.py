@@ -2,7 +2,7 @@ from . import dispatcher
 from . import utils
 import joblib
 import pandas as pd
-from sklearn import metrics
+from sklearn.metrics import  r2_score
 
 class Train:
     def __init__(self,
@@ -13,6 +13,9 @@ class Train:
         self.train_cfg = train_cfg
         self.clf = []
         self.clf_path = []
+        self.predictions = None
+        self.residuals = None
+        self.goodness_of_fit = None
         
 
     def train(self):
@@ -62,31 +65,32 @@ class Train:
             # create probabilities for validation samples
             preds = clf.predict_proba(x_val)[:,1]
             res = y_val - preds
+            scores = self.metrics(y_val,preds)
             
             if first:
-                predictions = preds
-                residuals = res
+                self.predictions = preds
+                self.residuals = res
+                self.goodness_of_fit = scores
                 first = False
             else:
-                predictions += preds
-                residuals += res
-                
-            
-            # get roc auc score
-            auc = metrics.roc_auc_score(y_val,preds)
-            # print("SCORE")
-            # print the auc score
-            print(f"Fold={fold}, AUC SCORE={auc}") 
+                self.predictions += preds
+                self.residuals += res
+                self.goodness_of_fit = {key: self.goodness_of_fit[key]+scores[key] for key in scores.keys()}
+
             # save the model along with fold number
             clf_path = f"{self.train_cfg['output_path']}/{self.train_cfg['model']}_{fold}.pkl"
             joblib.dump(clf,clf_path)
+            
             self.clf.append(clf)
             self.clf_path.append(clf_path)
         
-        predictions /= len(self.clf)
-        residuals /= len(self.clf)
-        utils.scatter_plot(x_data=predictions,
-                            y_data=residuals,
+        self.predictions /= len(self.clf)
+        self.residuals /= len(self.clf)
+        self.goodness_of_fit = {key: self.goodness_of_fit[key]/len(self.clf) for key in self.goodness_of_fit.keys()}
+        
+        
+        utils.scatter_plot(x_data=self.predictions,
+                            y_data=self.residuals,
                             title=f"Residuals_Vs_FittedValues",
                             x_title="Predictions",
                             y_title="Residuals",
@@ -94,5 +98,11 @@ class Train:
         
         return self.clf, self.clf_path  
     
-    def metrics(self):
-        pass  
+    def metrics(self,y_true,preds)-> dict:
+        score = {}
+        score['r2_score'] = r2_score(y_true,preds)
+        
+        return score
+    
+    def get_metrics(self) -> dict:
+        return self.goodness_of_fit

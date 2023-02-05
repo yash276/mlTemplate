@@ -1,8 +1,9 @@
 from . import dispatcher
 from . import utils
+from . import matrices
 import joblib
 import pandas as pd
-from sklearn.metrics import  r2_score
+
 
 class Train:
     def __init__(self,
@@ -65,7 +66,7 @@ class Train:
             # create probabilities for validation samples
             preds = clf.predict_proba(x_val)[:,1]
             res = y_val - preds
-            scores = self.metrics(y_val,preds)
+            scores = matrices.metrics(y_val,preds)
             
             if first:
                 self.predictions = preds
@@ -97,12 +98,6 @@ class Train:
                             output_path=f"{self.train_cfg['output_path']}/Residuals_Vs_Fitted_Values.html")
         
         return self.clf, self.clf_path  
-    
-    def metrics(self,y_true,preds)-> dict:
-        score = {}
-        score['r2_score'] = r2_score(y_true,preds)
-        
-        return score
     
     def get_metrics(self) -> dict:
         return self.goodness_of_fit

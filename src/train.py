@@ -1,5 +1,6 @@
 from . import dispatcher
 from . import utils
+import joblib
 import pandas as pd
 from sklearn import metrics
 
@@ -48,7 +49,9 @@ class Train:
             y_train = train_df[self.train_cfg['target_cols']].values
             # perform the same for validation
             x_val = val_df.drop(['kfold'] + self.train_cfg['target_cols'],axis=1).values
-            y_val = val_df[self.train_cfg['target_cols']].values
+            # TODO: works only if you have single taget column
+            # TODO: find a way to make it generic for n number of target columns
+            y_val = val_df[self.train_cfg['target_cols']].values[:,0]
             
             # fetch the model from the model dispatcher
             clf = dispatcher.models[self.train_cfg['model']]
@@ -58,26 +61,36 @@ class Train:
             
             # create probabilities for validation samples
             preds = clf.predict_proba(x_val)[:,1]
-            # TODO: works only if you have single taget column
-            # TODO: find a way to make it generic for n number of target columns
-            residuals = y_val[:,0] - preds
+            res = y_val - preds
             
-            utils.scatter_plot(x_data=preds,
-                               y_data=residuals,
-                               title=f"Residuals_Vs_FittedValues_{fold}",
-                               x_title="Predictions",
-                               y_title="Residuals",
-                               output_path=f"{self.train_cfg['output_path']}/Residuals_Vs_Fitted_Values_{fold}.html")
+            if first:
+                predictions = preds
+                residuals = res
+                first = False
+            else:
+                predictions += preds
+                residuals += res
+                
             
             # get roc auc score
-            # auc = metrics.roc_auc_score(y_val,preds)
+            auc = metrics.roc_auc_score(y_val,preds)
             # print("SCORE")
             # print the auc score
-            # print(f"Fold={fold}, AUC SCORE={auc}") 
+            print(f"Fold={fold}, AUC SCORE={auc}") 
             # save the model along with fold number
             clf_path = f"{self.train_cfg['output_path']}/{self.train_cfg['model']}_{fold}.pkl"
+            joblib.dump(clf,clf_path)
             self.clf.append(clf)
             self.clf_path.append(clf_path)
+        
+        predictions /= len(self.clf)
+        residuals /= len(self.clf)
+        utils.scatter_plot(x_data=predictions,
+                            y_data=residuals,
+                            title=f"Residuals_Vs_FittedValues",
+                            x_title="Predictions",
+                            y_title="Residuals",
+                            output_path=f"{self.train_cfg['output_path']}/Residuals_Vs_Fitted_Values.html")
         
         return self.clf, self.clf_path  
     

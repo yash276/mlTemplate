@@ -74,12 +74,12 @@ def pipeline(cfg : dict):
                           experiment_id=experiment_id):
         # run the training and get the classifier and classifier path list
         clf , clf_path = train_obj.train()
+        # TODO : Think how to log model parameters and metrics.
         metrics = train_obj.metrics()
         for (model,model_path) in zip(clf,clf_path):
             model_name = f"{cfg['ml_flow']['experiment_name']}_{Path(model_path).stem}"
             mlflow.sklearn.log_model(model, model_name , registered_model_name= model_name)
             train_cfg['clfs_path'].append(model_path)
-        # TODO : Think how to log model parameters and metrics.
         # get the updated dict for feature selection
         cfg['training'] = train_cfg
         # save the entire train config in the output path

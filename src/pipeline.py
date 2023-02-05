@@ -24,7 +24,7 @@ def pipeline(cfg : dict):
     test_df_d_copy = test_df.copy(deep=True)
     
     # Step 1 Perform The Automatic EDA
-    # eda.eda(input_cfg = input_cfg)
+    eda.eda(input_cfg = input_cfg)
     
     # Step 2 Perform Feature Selection for Categorical and Numerical Features
     feature_selection_cfg = cfg['feature_selection']
@@ -74,9 +74,10 @@ def pipeline(cfg : dict):
                           experiment_id=experiment_id):
         # run the training and get the classifier and classifier path list
         clf , clf_path = train_obj.train()
-        # TODO : Think how to log model parameters and metrics.
         metrics = train_obj.get_metrics()
+        
         mlflow.log_metrics(metrics=metrics)
+        
         for (model,model_path) in zip(clf,clf_path):
             model_name = f"{cfg['ml_flow']['experiment_name']}_{Path(model_path).stem}"
             mlflow.sklearn.log_model(model, model_name , registered_model_name= model_name)
